@@ -61,6 +61,8 @@ The power system ensures stable electrical operation across all hardware compone
 
 Brainworks utilizes a distributed hardware architecture where each vehicle node functions as an autonomous unit capable of local sensing, long-range vehicle-to-vehicle (V2V) communication, real-time data processing, and local hazard warning generation.
 
+![Brainworks Proposed System Architecture](images/01-system-architecture.png)
+
 ```mermaid
 flowchart TD
     GPS["NEO-6M GPS"] -->|Vehicle Position Data| ESP32["ESP32 Controller"]
@@ -132,6 +134,8 @@ flowchart TD
     LORA_B <-->|LoRa V2V Link| LORA_C
     LORA_A <-->|LoRa V2V Link| LORA_C
 ```
+
+![Brainworks Proposed V2V Communication Architecture](images/03-v2v-communication.png)
 
 ### Communication Design Principles
 
@@ -238,9 +242,13 @@ flowchart TD
     DECISION -->|Risk Detected| ALERT["Activate Active Buzzer"]
 ```
 
+![Brainworks Proposed Sensor Fusion & Risk Evaluation Flow](images/04-sensor-fusion-flow.png)
+
 ## Pin Connections
 
 The ESP32 microcontroller serves as the central processing unit of the Brainworks hardware node, interfacing with communication, positioning, local sensing, and alerting peripheral modules.
+
+![Brainworks Proposed Hardware Interconnection](images/05-proposed-interconnection.png)
 
 ### LoRa SX1278 / Ra-02 Connections
 
@@ -410,6 +418,8 @@ LOOP:
 The Brainworks prototype integrates main processing, wireless communication, positioning, sensing, and warning components into a functional hardware node for prototype-level validation and proof-of-concept testing.
 
 ### Prototype Architecture
+
+![Brainworks Proposed Hardware Node Concept](images/02-brainworks-node-concept.png)
 
 - **ESP32**: Central processing and control unit coordinating all peripherals and risk logic.
 - **LoRa SX1278 / Ra-02**: Long-range wireless module for inter-node communication between Brainworks vehicles.
