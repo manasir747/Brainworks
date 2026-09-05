@@ -1,4 +1,118 @@
-# Brainworks – Hardware Architecture
+# Brainworks Hardware
+
+Brainworks is an SIH 2026 proposed hardware architecture for an infrastructure-independent collision warning and situational awareness system designed for mining environments. A Wokwi-based functional simulation of the core ESP32 processing and warning logic has been developed to demonstrate the proposed information flow and local decision-making behaviour.
+
+---
+
+# Wokwi Hardware Simulation
+
+The Wokwi simulation provides a functional demonstration of the proposed Brainworks node logic. Since some of the proposed hardware modules are not directly available or practical to simulate in Wokwi, equivalent simulated inputs are used to validate the information flow and local warning behaviour.
+
+![Brainworks Wokwi Hardware Simulation](images/06-wokwi-simulation.png)
+
+> [!NOTE]
+> This simulation is a conceptual functional demonstration. It is not a physically validated hardware prototype, and it does not replace the proposed LoRa, GPS, or mmWave radar hardware components.
+
+### Simulation Architecture
+
+The Wokwi simulation models two conceptual input paths into the ESP32 local processing logic:
+
+```mermaid
+flowchart TD
+    subgraph OBSTACLE["Obstacle Input Path"]
+        HC["HC-SR04 Ultrasonic Sensor\n(Simulates obstacle proximity)"]
+    end
+
+    subgraph V2V["Simulated V2V Input Path"]
+        BTN["Pushbutton — V2V Alert\n(Simulates incoming nearby node alert)"]
+    end
+
+    ESP32["ESP32\nLocal Processing"]
+    LOGIC["Risk / Warning Logic"]
+    GREEN["Green LED\n(Normal / Monitoring)"]
+    RED["Red LED\n(Warning Condition)"]
+    BUZ["Buzzer\n(Local Warning Output)"]
+
+    HC --> ESP32
+    BTN --> ESP32
+    ESP32 --> LOGIC
+    LOGIC -->|"No Risk"| GREEN
+    LOGIC -->|"Risk Detected"| RED
+    LOGIC -->|"Risk Detected"| BUZ
+```
+
+### Component Mapping
+
+| Proposed Brainworks Component | Wokwi Simulation Equivalent |
+|---|---|
+| ESP32 | ESP32 |
+| NEO-6M GPS | Simulated position data in software |
+| 24 GHz mmWave Radar | HC-SR04 ultrasonic sensor for obstacle-distance simulation |
+| LoRa SX1278 / Ra-02 | Pushbutton-based simulated V2V alert |
+| Active Buzzer | Wokwi buzzer |
+| System Status Indication | Green LED (normal) and Red LED (warning) |
+
+> [!IMPORTANT]
+> The HC-SR04 and the pushbutton are functional simulation substitutes used to demonstrate the proposed information flow. They are not the hardware components specified in the Brainworks proposed hardware architecture.
+
+### Demonstrated Scenarios
+
+#### 1. Normal Monitoring
+
+When no nearby obstacle is detected and no simulated V2V alert is active:
+
+- **Green LED**: ON — indicates normal monitoring condition
+- **Red LED**: OFF
+- **Buzzer**: OFF
+- System remains in continuous monitoring mode
+
+#### 2. Local Obstacle Warning
+
+When the HC-SR04 ultrasonic sensor returns a simulated distance below the configured warning threshold:
+
+- The ESP32 receives the obstacle-proximity input from the HC-SR04
+- Local warning logic evaluates the measured distance against the configured threshold
+- **Red LED** activates to indicate a warning condition
+- **Buzzer** activates to produce a local audible warning
+
+> [!NOTE]
+> The HC-SR04 is used exclusively as a simulation substitute for the proposed 24 GHz mmWave radar. The actual Brainworks hardware architecture specifies a 24 GHz mmWave radar for local obstacle sensing. Range characteristics, detection capability, and operating behaviour will differ between simulation and the proposed physical implementation.
+
+#### 3. Simulated Nearby Node Alert
+
+When the "V2V Alert" pushbutton is activated:
+
+- The button input represents a simulated incoming awareness alert from a nearby Brainworks node
+- The ESP32 processes the simulated awareness signal
+- Warning logic evaluates the condition
+- Local warning outputs may activate in response
+
+> [!NOTE]
+> The pushbutton simulates the logical role of the proposed LoRa communication layer. It is not actual LoRa communication. Real V2V awareness data exchange between Brainworks nodes through LoRa SX1278 / Ra-02 is a proposed future capability that requires physical hardware prototype development and radio communication validation.
+
+### Simulation Scope and Limitations
+
+This Wokwi simulation demonstrates the proposed Brainworks information flow and local warning logic. It is not a replacement for physical hardware validation. Actual LoRa communication, NEO-6M GPS integration, 24 GHz mmWave radar sensing, electrical validation, range testing, reliability testing, and environment-specific performance evaluation remain part of future prototype development.
+
+The purpose of the simulation is to provide a conceptual functional demonstration of the proposed node logic and decision flow for evaluation and presentation purposes.
+
+### Implementation Status
+
+| Feature | Status |
+|---|---|
+| ESP32 Processing Logic | Simulated |
+| Obstacle Input | Simulated using HC-SR04 |
+| Nearby Node Alert | Simulated using Pushbutton |
+| Local Warning Output | Simulated |
+| GPS Integration | Simulated in Software |
+| LoRa Communication | Proposed |
+| 24 GHz mmWave Radar | Proposed |
+| Physical Prototype | Future Development |
+| Real-World Validation | Future Development |
+
+---
+
+# Proposed Hardware Architecture
 
 ## Overview
 
@@ -57,7 +171,7 @@ The active buzzer serves as the primary local alerting mechanism. It provides im
 
 The power system ensures stable electrical operation across all hardware components. The prototype requires appropriate voltage regulation and a common ground reference between interconnected modules to maintain signal integrity and reliable operation.
 
-## System Architecture
+# System Architecture
 
 Brainworks utilizes a distributed hardware architecture where each vehicle node functions as an autonomous unit capable of local sensing, long-range vehicle-to-vehicle (V2V) communication, real-time data processing, and local hazard warning generation.
 
@@ -67,13 +181,13 @@ Brainworks utilizes a distributed hardware architecture where each vehicle node 
 flowchart TD
     GPS["NEO-6M GPS"] -->|Vehicle Position Data| ESP32["ESP32 Controller"]
     RADAR["24 GHz mmWave Radar"] -->|Local Obstacle Data| ESP32
-    
+
     ESP32 <-->|Tx / Rx Telemetry| LORA["LoRa SX1278 / Ra-02"]
     LORA <-->|V2V Wireless Link| PEERS["Nearby Brainworks Vehicles"]
-    
+
     ESP32 --> FUSION["Sensor & Data Fusion"]
     FUSION --> RISK["Collision Risk Assessment"]
-    
+
     RISK -->|Safe Condition| SAFE["Continue Monitoring"]
     RISK -->|Risk Detected| ALERT["Activate Active Buzzer"]
     ALERT --> DRIVER["Driver / Operator Warning"]
@@ -113,37 +227,6 @@ Brainworks utilizes direct LoRa-based communication between participating nodes 
 
 > [!NOTE]
 > This structure represents the baseline prototype-level awareness message format and can be extended with additional parameters as the system evolves.
-
-### Vehicle-to-Vehicle Communication Diagram
-
-```mermaid
-flowchart TD
-    subgraph NODE_A["Brainworks Node A"]
-        GPS_A["GPS"] --> ESP_A["ESP32"] --> LORA_A["LoRa"]
-    end
-
-    subgraph NODE_B["Brainworks Node B"]
-        GPS_B["GPS"] --> ESP_B["ESP32"] --> LORA_B["LoRa"]
-    end
-
-    subgraph NODE_C["Brainworks Node C"]
-        GPS_C["GPS"] --> ESP_C["ESP32"] --> LORA_C["LoRa"]
-    end
-
-    LORA_A <-->|LoRa V2V Link| LORA_B
-    LORA_B <-->|LoRa V2V Link| LORA_C
-    LORA_A <-->|LoRa V2V Link| LORA_C
-```
-
-![Brainworks Proposed V2V Communication Architecture](images/03-v2v-communication.png)
-
-### Communication Design Principles
-
-- **Direct Node-to-Node Exchange**: Vehicles exchange awareness information directly with nearby peer nodes using wireless LoRa communication.
-- **Local Processing**: Each node independently processes both locally generated sensor data and received V2V telemetry messages.
-- **Infrastructure-Independent**: No reliance on cellular networks, cloud services, or external central servers for the immediate warning path.
-- **Distributed Architecture**: Supports decentralized operation across arbitrary clusters of equipped vehicles.
-- **Extensible Payload**: Modular awareness message structure designed for easy expansion with future telemetry parameters.
 
 ## Sensor Fusion Strategy
 
@@ -244,93 +327,6 @@ flowchart TD
 
 ![Brainworks Proposed Sensor Fusion & Risk Evaluation Flow](images/04-sensor-fusion-flow.png)
 
-## Pin Connections
-
-The ESP32 microcontroller serves as the central processing unit of the Brainworks hardware node, interfacing with communication, positioning, local sensing, and alerting peripheral modules.
-
-![Brainworks Proposed Hardware Interconnection](images/05-proposed-interconnection.png)
-
-### LoRa SX1278 / Ra-02 Connections
-
-| LoRa Pin | ESP32 Pin | Purpose |
-|---|---|---|
-| VCC | To be verified from prototype wiring | Power |
-| GND | To be verified from prototype wiring | Ground |
-| SCK | To be verified from prototype wiring | SPI Clock |
-| MISO | To be verified from prototype wiring | SPI Data Output |
-| MOSI | To be verified from prototype wiring | SPI Data Input |
-| NSS / CS | To be verified from prototype wiring | SPI Chip Select |
-| RST | To be verified from prototype wiring | Reset |
-| DIO0 | To be verified from prototype wiring | Interrupt |
-
-### NEO-6M GPS Connections
-
-| GPS Pin | ESP32 Pin | Purpose |
-|---|---|---|
-| VCC | To be verified from prototype wiring | Power |
-| GND | To be verified from prototype wiring | Ground |
-| TX | To be verified from prototype wiring | UART Transmit (to ESP32 RX) |
-| RX | To be verified from prototype wiring | UART Receive (from ESP32 TX) |
-
-### 24 GHz mmWave Radar Connections
-
-| Radar Pin | ESP32 Pin | Purpose |
-|---|---|---|
-| VCC | To be verified from prototype wiring | Power |
-| GND | To be verified from prototype wiring | Ground |
-| OUT / TX | To be verified from prototype wiring | Signal / Data Output |
-
-### Active Buzzer Connection
-
-| Buzzer Pin | ESP32 Pin | Purpose |
-|---|---|---|
-| VCC / Signal | To be verified from prototype wiring | Alert Control / Drive Signal |
-| GND | To be verified from prototype wiring | Ground |
-
-### Wiring Notes
-
-- Ensure all interconnected modules share a common ground reference across the entire system.
-- Verify the required operating voltage of each module before connecting it to the power supply.
-- Do not assume all modules use the same logic or supply voltage levels.
-- GPIO pins should only be used according to the electrical specifications and current limits of the connected module.
-- **High-Current Loads**: High-current loads should not be powered directly from an ESP32 GPIO pin.
-
-## Power Architecture
-
-Reliable power distribution is essential for the Brainworks system because each hardware node integrates a central microcontroller, wireless communication hardware, positioning hardware, radar sensing, and a local warning mechanism.
-
-### Power Distribution Concept
-
-```mermaid
-flowchart TD
-    SOURCE["Power Source"] --> REG["Power Regulation / Distribution"]
-    REG --> ESP32["ESP32 Controller"]
-    REG --> LORA["LoRa SX1278 / Ra-02"]
-    REG --> GPS["NEO-6M GPS"]
-    REG --> RADAR["24 GHz mmWave Radar"]
-    REG --> BUZZER["Active Buzzer"]
-```
-
-### Power Design Considerations
-
-- **Module Voltage Requirements**: Each hardware module must receive power according to its verified operating requirements.
-- **Voltage Regulation**: A regulated power supply should be used where required to ensure stable voltage levels across peripherals.
-- **Common Ground Reference**: All interconnected modules must share a common ground reference to maintain signal integrity and proper operation.
-- **Pre-Assembly Validation**: Power requirements and power distribution paths should be validated before final prototype assembly.
-- **Operational Power Stability**: Communication and sensing modules should receive stable power during operation to prevent brownouts or reset conditions.
-- **GPIO Current Limits**: High-current peripherals or loads should not be powered directly from an ESP32 GPIO pin.
-- **Field Protection**: Final field deployment would require appropriate electrical protection and ruggedization against environmental factors.
-
-### Prototype vs Field Deployment
-
-| Aspect | Prototype Consideration | Future Field Deployment |
-|---|---|---|
-| Power Source | Suitable regulated prototype power | Industrial or vehicle-compatible power integration |
-| Voltage Regulation | Based on verified module requirements | Protected and regulated power architecture |
-| Electrical Protection | Basic prototype-level precautions | Surge, reverse-polarity, and transient protection as required |
-| Enclosure | Development setup | Ruggedized enclosure suitable for the operating environment |
-| Reliability | Prototype validation | Redundancy and industrial-grade validation where required |
-
 ## Collision Detection Logic
 
 Brainworks continuously evaluates available cooperative awareness information and local obstacle sensing data to determine whether a configured risk condition requires a local warning activation.
@@ -413,7 +409,7 @@ LOOP:
 - **Validation Requirement**: Final field deployment would require extensive physical validation, environmental testing, and safety verification.
 - **Prototype Scope**: Brainworks is a proof-of-concept prototype and does not replace certified industrial collision-avoidance systems or mandatory mine safety regulations.
 
-## Hardware Prototype
+# Brainworks Node Concept
 
 The Brainworks prototype integrates main processing, wireless communication, positioning, sensing, and warning components into a functional hardware node for prototype-level validation and proof-of-concept testing.
 
@@ -460,115 +456,127 @@ Hardware/
     └── complete-node.jpg
 ```
 
-## Wokwi Hardware Simulation
+# V2V Communication Concept
 
-The Wokwi simulation provides a functional demonstration of the proposed Brainworks node logic. Since some of the proposed hardware modules are not directly available or practical to simulate in Wokwi, equivalent simulated inputs are used to validate the information flow and local warning behavior.
+Brainworks utilizes direct LoRa-based communication between participating nodes so that nearby vehicles can exchange essential awareness information without depending on cloud services or continuous internet connectivity.
 
-![Brainworks Wokwi Hardware Simulation](images/06-wokwi-simulation.png)
-
-> [!NOTE]
-> This simulation is a conceptual functional demonstration. It is not a physically validated hardware prototype, and it does not replace the proposed LoRa, GPS, or mmWave radar hardware components.
-
-### Simulation Architecture
-
-The Wokwi simulation models two conceptual input paths into the ESP32 local processing logic:
+### Vehicle-to-Vehicle Communication Diagram
 
 ```mermaid
 flowchart TD
-    subgraph OBSTACLE["Obstacle Input Path"]
-        HC["HC-SR04 Ultrasonic Sensor\n(Simulates obstacle proximity)"]
+    subgraph NODE_A["Brainworks Node A"]
+        GPS_A["GPS"] --> ESP_A["ESP32"] --> LORA_A["LoRa"]
     end
 
-    subgraph V2V["Simulated V2V Input Path"]
-        BTN["Pushbutton — V2V Alert\n(Simulates incoming nearby node alert)"]
+    subgraph NODE_B["Brainworks Node B"]
+        GPS_B["GPS"] --> ESP_B["ESP32"] --> LORA_B["LoRa"]
     end
 
-    ESP32["ESP32\nLocal Processing"]
-    LOGIC["Risk / Warning Logic"]
-    GREEN["Green LED\n(Normal / Monitoring)"]
-    RED["Red LED\n(Warning Condition)"]
-    BUZ["Buzzer\n(Local Warning Output)"]
+    subgraph NODE_C["Brainworks Node C"]
+        GPS_C["GPS"] --> ESP_C["ESP32"] --> LORA_C["LoRa"]
+    end
 
-    HC --> ESP32
-    BTN --> ESP32
-    ESP32 --> LOGIC
-    LOGIC -->|"No Risk"| GREEN
-    LOGIC -->|"Risk Detected"| RED
-    LOGIC -->|"Risk Detected"| BUZ
+    LORA_A <-->|LoRa V2V Link| LORA_B
+    LORA_B <-->|LoRa V2V Link| LORA_C
+    LORA_A <-->|LoRa V2V Link| LORA_C
 ```
 
-### Component Mapping
+![Brainworks Proposed V2V Communication Architecture](images/03-v2v-communication.png)
 
-| Proposed Brainworks Component | Wokwi Simulation Equivalent |
-|---|---|
-| ESP32 | ESP32 |
-| NEO-6M GPS | Simulated position data in software |
-| 24 GHz mmWave Radar | HC-SR04 ultrasonic sensor for obstacle-distance simulation |
-| LoRa SX1278 / Ra-02 | Pushbutton-based simulated V2V alert |
-| Active Buzzer | Wokwi buzzer |
-| System Status Indication | Green LED (normal) and Red LED (warning) |
+### Communication Design Principles
 
-> [!IMPORTANT]
-> The HC-SR04 and the pushbutton are functional simulation substitutes used to demonstrate the proposed information flow. They are not the hardware components specified in the Brainworks proposed hardware architecture.
+- **Direct Node-to-Node Exchange**: Vehicles exchange awareness information directly with nearby peer nodes using wireless LoRa communication.
+- **Local Processing**: Each node independently processes both locally generated sensor data and received V2V telemetry messages.
+- **Infrastructure-Independent**: No reliance on cellular networks, cloud services, or external central servers for the immediate warning path.
+- **Distributed Architecture**: Supports decentralized operation across arbitrary clusters of equipped vehicles.
+- **Extensible Payload**: Modular awareness message structure designed for easy expansion with future telemetry parameters.
 
-### Demonstrated Scenarios
+# Sensor Fusion and Data Flow
 
-#### 1. Normal Monitoring
+### Power Distribution Concept
 
-When no nearby obstacle is detected and no simulated V2V alert is active:
+```mermaid
+flowchart TD
+    SOURCE["Power Source"] --> REG["Power Regulation / Distribution"]
+    REG --> ESP32["ESP32 Controller"]
+    REG --> LORA["LoRa SX1278 / Ra-02"]
+    REG --> GPS["NEO-6M GPS"]
+    REG --> RADAR["24 GHz mmWave Radar"]
+    REG --> BUZZER["Active Buzzer"]
+```
 
-- **Green LED**: ON — indicates normal monitoring condition
-- **Red LED**: OFF
-- **Buzzer**: OFF
-- System remains in continuous monitoring mode
+### Power Design Considerations
 
-#### 2. Local Obstacle Warning
+- **Module Voltage Requirements**: Each hardware module must receive power according to its verified operating requirements.
+- **Voltage Regulation**: A regulated power supply should be used where required to ensure stable voltage levels across peripherals.
+- **Common Ground Reference**: All interconnected modules must share a common ground reference to maintain signal integrity and proper operation.
+- **Pre-Assembly Validation**: Power requirements and power distribution paths should be validated before final prototype assembly.
+- **Operational Power Stability**: Communication and sensing modules should receive stable power during operation to prevent brownouts or reset conditions.
+- **GPIO Current Limits**: High-current peripherals or loads should not be powered directly from an ESP32 GPIO pin.
+- **Field Protection**: Final field deployment would require appropriate electrical protection and ruggedization against environmental factors.
 
-When the HC-SR04 ultrasonic sensor returns a simulated distance below the configured warning threshold:
+### Prototype vs Field Deployment
 
-- The ESP32 receives the obstacle-proximity input from the HC-SR04
-- Local warning logic evaluates the measured distance against the configured threshold
-- **Red LED** activates to indicate a warning condition
-- **Buzzer** activates to produce a local audible warning
+| Aspect | Prototype Consideration | Future Field Deployment |
+|---|---|---|
+| Power Source | Suitable regulated prototype power | Industrial or vehicle-compatible power integration |
+| Voltage Regulation | Based on verified module requirements | Protected and regulated power architecture |
+| Electrical Protection | Basic prototype-level precautions | Surge, reverse-polarity, and transient protection as required |
+| Enclosure | Development setup | Ruggedized enclosure suitable for the operating environment |
+| Reliability | Prototype validation | Redundancy and industrial-grade validation where required |
 
-> [!NOTE]
-> The HC-SR04 is used exclusively as a simulation substitute for the proposed 24 GHz mmWave radar. The actual Brainworks hardware architecture specifies a 24 GHz mmWave radar for local obstacle sensing. Range characteristics, detection capability, and operating behavior will differ between simulation and the proposed physical implementation.
+# Proposed Hardware Interconnection
 
-#### 3. Simulated Nearby Node Alert
+The ESP32 microcontroller serves as the central processing unit of the Brainworks hardware node, interfacing with communication, positioning, local sensing, and alerting peripheral modules.
 
-When the "V2V Alert" pushbutton is activated:
+![Brainworks Proposed Hardware Interconnection](images/05-proposed-interconnection.png)
 
-- The button input represents a simulated incoming awareness alert from a nearby Brainworks node
-- The ESP32 processes the simulated awareness signal
-- Warning logic evaluates the condition
-- Local warning outputs may activate in response
+### LoRa SX1278 / Ra-02 Connections
 
-> [!NOTE]
-> The pushbutton simulates the logical role of the proposed LoRa communication layer. It is not actual LoRa communication. Real V2V awareness data exchange between Brainworks nodes through LoRa SX1278 / Ra-02 is a proposed future capability that requires physical hardware prototype development and radio communication validation.
+| LoRa Pin | ESP32 Pin | Purpose |
+|---|---|---|
+| VCC | To be verified from prototype wiring | Power |
+| GND | To be verified from prototype wiring | Ground |
+| SCK | To be verified from prototype wiring | SPI Clock |
+| MISO | To be verified from prototype wiring | SPI Data Output |
+| MOSI | To be verified from prototype wiring | SPI Data Input |
+| NSS / CS | To be verified from prototype wiring | SPI Chip Select |
+| RST | To be verified from prototype wiring | Reset |
+| DIO0 | To be verified from prototype wiring | Interrupt |
 
-### Simulation Scope and Limitations
+### NEO-6M GPS Connections
 
-This Wokwi simulation demonstrates the proposed Brainworks information flow and local warning logic. It is not a replacement for physical hardware validation. Actual LoRa communication, NEO-6M GPS integration, 24 GHz mmWave radar sensing, electrical validation, range testing, reliability testing, and environment-specific performance evaluation remain part of future prototype development.
+| GPS Pin | ESP32 Pin | Purpose |
+|---|---|---|
+| VCC | To be verified from prototype wiring | Power |
+| GND | To be verified from prototype wiring | Ground |
+| TX | To be verified from prototype wiring | UART Transmit (to ESP32 RX) |
+| RX | To be verified from prototype wiring | UART Receive (from ESP32 TX) |
 
-The purpose of the simulation is to provide a conceptual functional demonstration of the proposed node logic and decision flow for evaluation and presentation purposes.
+### 24 GHz mmWave Radar Connections
 
-### Implementation Status
+| Radar Pin | ESP32 Pin | Purpose |
+|---|---|---|
+| VCC | To be verified from prototype wiring | Power |
+| GND | To be verified from prototype wiring | Ground |
+| OUT / TX | To be verified from prototype wiring | Signal / Data Output |
 
-| Feature | Status |
-|---|---|
-| ESP32 Processing Logic | Simulated |
-| Obstacle Input | Simulated using HC-SR04 |
-| Nearby Node Alert | Simulated using Pushbutton |
-| Local Warning Output | Simulated |
-| GPS Integration | Simulated in Software |
-| LoRa Communication | Proposed |
-| 24 GHz mmWave Radar | Proposed |
-| Physical Prototype | Future Development |
-| Real-World Validation | Future Development |
+### Active Buzzer Connection
 
----
+| Buzzer Pin | ESP32 Pin | Purpose |
+|---|---|---|
+| VCC / Signal | To be verified from prototype wiring | Alert Control / Drive Signal |
+| GND | To be verified from prototype wiring | Ground |
 
-## Bill of Materials
+### Wiring Notes
+
+- Ensure all interconnected modules share a common ground reference across the entire system.
+- Verify the required operating voltage of each module before connecting it to the power supply.
+- Do not assume all modules use the same logic or supply voltage levels.
+- GPIO pins should only be used according to the electrical specifications and current limits of the connected module.
+- **High-Current Loads**: High-current loads should not be powered directly from an ESP32 GPIO pin.
+
+# Bill of Materials
 
 The following components are used to construct a prototype-level Brainworks hardware node.
 
@@ -604,7 +612,7 @@ The exact component configuration may evolve depending on prototype testing, ope
 > [!NOTE]
 > Component costs are dependent on the selected module versions, suppliers, quantities, and prototype configuration. A detailed cost analysis can be added after final component procurement and validation.
 
-## Future Hardware Improvements
+# Future Hardware Improvements
 
 The current Brainworks implementation represents a prototype-level hardware architecture developed for proof-of-concept testing and initial validation. Future hardware iterations can enhance positioning accuracy, local sensing capability, wireless communication robustness, electrical power protection, and physical environmental durability.
 
@@ -660,4 +668,3 @@ The current Brainworks implementation represents a prototype-level hardware arch
 ### Long-Term Vision
 
 Brainworks has the potential to evolve from a prototype-level awareness node into a comprehensive, scalable distributed safety-support architecture. In this vision, heterogeneous vehicles, heavy equipment, site infrastructure, and personnel nodes seamlessly exchange real-time awareness data while combining wireless cooperative communication with autonomous local sensing. Any transition toward real-world industrial deployment will require rigorous engineering validation, extensive site testing, and strict compliance with applicable mining safety standards and regulations.
-
