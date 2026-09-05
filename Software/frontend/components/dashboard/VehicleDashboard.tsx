@@ -5,6 +5,7 @@ import { GpsSection } from "./GpsSection";
 import { ObstacleSection } from "./ObstacleSection";
 import { SpeedSection } from "./SpeedSection";
 import { TrackSafetySection } from "./TrackSafetySection";
+import { VehicleSelector } from "./VehicleSelector";
 
 type VehicleOption = {
   id: string;
@@ -43,21 +44,11 @@ export function VehicleDashboard({
           />
 
           {vehicles.length > 1 && onSelectVehicle && (
-            <div className="hidden sm:flex items-center gap-1.5 rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[11px] font-mono">
-              <span className="text-white/40">NODE:</span>
-              <select
-                value={selectedVehicleId || telemetry.vehicleId}
-                onChange={(e) => onSelectVehicle(e.target.value)}
-                className="bg-transparent font-medium text-white/90 focus:outline-none cursor-pointer"
-                aria-label="Select vehicle node"
-              >
-                {vehicles.map((v) => (
-                  <option key={v.id} value={v.id} className="bg-[#121418] text-white">
-                    {v.id} ({v.type})
-                  </option>
-                ))}
-              </select>
-            </div>
+            <VehicleSelector
+              vehicles={vehicles}
+              value={selectedVehicleId || telemetry.vehicleId}
+              onChange={onSelectVehicle}
+            />
           )}
         </div>
 
