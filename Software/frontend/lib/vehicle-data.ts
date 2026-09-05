@@ -22,6 +22,14 @@ export type GpsReading = {
   longitude: number;
 };
 
+export type TrackSafetyStatus = "safe" | "not_safe";
+
+export type TrackSafety = {
+  status: TrackSafetyStatus;
+  accidentChance: number;
+  predictionPercent: number;
+};
+
 export type VehicleTelemetry = {
   vehicleId: string;
   vehicleType: string;
@@ -34,6 +42,7 @@ export type VehicleTelemetry = {
   speed: SpeedReading;
   obstacle: ObstacleReading;
   gps: GpsReading;
+  trackSafety: TrackSafety;
 };
 
 export type BackendVehicle = {
@@ -103,6 +112,28 @@ export function transformVehicleToTelemetry(
 
   const formattedType = vehicle.type ? vehicle.type.replace(/_/g, " ") : "Vehicle";
 
+  const maxRisk = vehicleAlerts.reduce(
+    (highest, alert) => Math.max(highest, Number(alert.riskScore) || 0),
+    0
+  );
+
+  let accidentChance = Math.round(maxRisk);
+  if (obstacleStatus === "detected" && accidentChance < 55) {
+    accidentChance = 58;
+  }
+  if (obstacleStatus === "clear" && accidentChance === 0) {
+    accidentChance = 9;
+  }
+  accidentChance = Math.min(100, Math.max(0, accidentChance));
+
+  const trackStatus: TrackSafetyStatus =
+    obstacleStatus === "detected" || accidentChance >= 40 ? "not_safe" : "safe";
+
+  const predictionPercent = Math.min(
+    99,
+    Math.max(82, Math.round(88 + (obstacleStatus === "detected" ? 6 : 4)))
+  );
+
   return {
     vehicleId: vehicle.id,
     vehicleType: vehicle.type,
@@ -128,6 +159,11 @@ export function transformVehicleToTelemetry(
     gps: {
       latitude: vehicle.latitude,
       longitude: vehicle.longitude,
+    },
+    trackSafety: {
+      status: trackStatus,
+      accidentChance,
+      predictionPercent,
     },
   };
 }

@@ -4,6 +4,8 @@ import { CameraFeedView } from "./CameraFeedView";
 import { GpsSection } from "./GpsSection";
 import { ObstacleSection } from "./ObstacleSection";
 import { SpeedSection } from "./SpeedSection";
+import { TrackSafetySection } from "./TrackSafetySection";
+import { VehicleSelector } from "./VehicleSelector";
 
 type VehicleOption = {
   id: string;
@@ -42,21 +44,11 @@ export function VehicleDashboard({
           />
 
           {vehicles.length > 1 && onSelectVehicle && (
-            <div className="hidden sm:flex items-center gap-1.5 rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[11px] font-mono">
-              <span className="text-white/40">NODE:</span>
-              <select
-                value={selectedVehicleId || telemetry.vehicleId}
-                onChange={(e) => onSelectVehicle(e.target.value)}
-                className="bg-transparent font-medium text-white/90 focus:outline-none cursor-pointer"
-                aria-label="Select vehicle node"
-              >
-                {vehicles.map((v) => (
-                  <option key={v.id} value={v.id} className="bg-[#121418] text-white">
-                    {v.id} ({v.type})
-                  </option>
-                ))}
-              </select>
-            </div>
+            <VehicleSelector
+              vehicles={vehicles}
+              value={selectedVehicleId || telemetry.vehicleId}
+              onChange={onSelectVehicle}
+            />
           )}
         </div>
 
@@ -107,12 +99,15 @@ export function VehicleDashboard({
       <main className="flex min-h-0 flex-1 flex-col items-stretch border-t border-white/8 lg:flex-row">
         <CameraFeedView camera={telemetry.camera} />
 
-        <aside className="flex shrink-0 flex-col self-stretch border-t border-white/8 md:flex-row lg:w-[22rem] lg:flex-col lg:border-t-0 lg:border-l xl:w-96">
-          <div className="flex min-h-0 flex-1 border-b border-white/8 md:border-r md:border-b-0 lg:border-r-0 lg:border-b">
+        <aside className="grid shrink-0 grid-cols-1 self-stretch border-t border-white/8 md:grid-cols-2 lg:flex lg:w-[22rem] lg:flex-col xl:w-96 lg:border-t-0 lg:border-l">
+          <div className="flex min-h-0 flex-1 border-b border-white/8 md:border-r lg:border-r-0">
             <SpeedSection speed={telemetry.speed} />
           </div>
-          <div className="flex min-h-0 flex-1 border-b border-white/8 md:border-r md:border-b-0 lg:border-r-0 lg:border-b">
+          <div className="flex min-h-0 flex-1 border-b border-white/8">
             <ObstacleSection obstacle={telemetry.obstacle} />
+          </div>
+          <div className="flex min-h-0 flex-1 border-b border-white/8 md:border-r lg:border-r-0">
+            <TrackSafetySection safety={telemetry.trackSafety} />
           </div>
           <div className="flex min-h-0 flex-1">
             <GpsSection gps={telemetry.gps} />

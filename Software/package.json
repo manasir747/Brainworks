@@ -1,0 +1,12 @@
+{
+  "name": "brainworks",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Brainworks full project runner",
+  "scripts": {
+    "dev": "npx --yes concurrently -k -n backend,frontend -c green,cyan \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm start",
+    "dev:frontend": "cd frontend && npm run dev",
+    "install:all": "cd backend && npm install && cd ../frontend && npm install"
+  }
+}
