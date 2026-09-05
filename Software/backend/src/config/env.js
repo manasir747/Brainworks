@@ -7,6 +7,8 @@ require('dotenv').config({
 const config = {
   port: Number(process.env.PORT) || 3000,
   nodeEnv: process.env.NODE_ENV || 'development',
+  simulatorEnabled: process.env.SIMULATOR_ENABLED === 'true',
+  simulatorIntervalMs: Number(process.env.SIMULATOR_INTERVAL_MS) || 1000,
 };
 
 module.exports = config;

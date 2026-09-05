@@ -1,7 +1,10 @@
 function getHealth(req, res) {
   res.status(200).json({
-    status: 'ok',
-    service: 'mine-safety-backend',
+    success: true,
+    data: {
+      status: 'ok',
+      service: 'mine-safety-backend',
+    },
   });
 }
 

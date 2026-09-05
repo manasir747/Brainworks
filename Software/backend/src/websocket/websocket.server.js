@@ -74,6 +74,7 @@ function toVehicleUpdateData(state) {
     heading: state.heading,
     visibility: state.visibility,
     zoneId: state.zoneId || null,
+    lastUpdated: state.lastUpdated || null,
   };
 }
 
@@ -120,15 +121,21 @@ function handleVehicleTelemetry(ws, data) {
 
     if (!result.ok) {
       sendTo(ws, 'ERROR', { message: result.error || 'Unknown vehicle' });
-      return;
+      return result;
     }
 
     evaluateAlertsForVehicle(result.state);
     broadcast('VEHICLE_UPDATE', toVehicleUpdateData(result.state));
+    return result;
   } catch (err) {
     logger.error({ err }, 'Telemetry processing failed');
     sendTo(ws, 'ERROR', { message: 'Telemetry processing failed' });
+    return { ok: false, error: 'Telemetry processing failed' };
   }
+}
+
+function ingestTelemetry(data) {
+  return handleVehicleTelemetry(null, data);
 }
 
 function handleIncomingMessage(ws, raw) {
@@ -213,4 +220,5 @@ module.exports = {
   attachWebSocket,
   broadcast,
   getConnectedClientCount,
+  ingestTelemetry,
 };

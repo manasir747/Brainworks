@@ -2,6 +2,7 @@ const logger = require('./logger');
 
 function notFoundHandler(req, res) {
   res.status(404).json({
+    success: false,
     error: 'Not found',
   });
 }
@@ -12,6 +13,7 @@ function errorHandler(err, req, res, next) {
   const statusCode = Number(err.status) || Number(err.statusCode) || 500;
 
   res.status(statusCode).json({
+    success: false,
     error: statusCode === 500 ? 'Internal server error' : err.message || 'Request failed',
   });
 }
