@@ -1,0 +1,20 @@
+[
+  {
+    "id": "ZONE-01",
+    "name": "Haul Road",
+    "speedLimit": 30,
+    "visibilityThreshold": 50
+  },
+  {
+    "id": "ZONE-02",
+    "name": "Loading Zone",
+    "speedLimit": 15,
+    "visibilityThreshold": 40
+  },
+  {
+    "id": "ZONE-03",
+    "name": "Excavation Zone",
+    "speedLimit": 10,
+    "visibilityThreshold": 35
+  }
+]

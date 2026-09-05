@@ -1,0 +1,57 @@
+[
+  {
+    "id": "TRUCK-01",
+    "type": "DUMP_TRUCK",
+    "status": "ACTIVE",
+    "latitude": 18.5212,
+    "longitude": 73.8541,
+    "speed": 28,
+    "heading": 118,
+    "visibility": 42,
+    "lastUpdated": "2026-09-05T07:00:00.000Z"
+  },
+  {
+    "id": "TRUCK-02",
+    "type": "DUMP_TRUCK",
+    "status": "ACTIVE",
+    "latitude": 18.5186,
+    "longitude": 73.8594,
+    "speed": 36,
+    "heading": 204,
+    "visibility": 76,
+    "lastUpdated": "2026-09-05T07:01:15.000Z"
+  },
+  {
+    "id": "EXCV-01",
+    "type": "EXCAVATOR",
+    "status": "ACTIVE",
+    "latitude": 18.5169,
+    "longitude": 73.8518,
+    "speed": 4,
+    "heading": 75,
+    "visibility": 88,
+    "lastUpdated": "2026-09-05T07:00:40.000Z"
+  },
+  {
+    "id": "LOAD-01",
+    "type": "LOADER",
+    "status": "ACTIVE",
+    "latitude": 18.5198,
+    "longitude": 73.8533,
+    "speed": 12,
+    "heading": 310,
+    "visibility": 64,
+    "lastUpdated": "2026-09-05T07:01:05.000Z"
+  },
+  {
+    "id": "TRUCK-03",
+    "type": "DUMP_TRUCK",
+    "status": "IDLE",
+    "latitude": 18.5231,
+    "longitude": 73.8576,
+    "speed": 0,
+    "heading": 15,
+    "visibility": 91,
+    "lastUpdated": "2026-09-05T06:58:20.000Z"
+  }
+]

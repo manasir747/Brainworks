@@ -1,0 +1,42 @@
+[
+  {
+    "id": "ALERT-001",
+    "vehicleId": "TRUCK-01",
+    "type": "LOW_VISIBILITY",
+    "severity": "HIGH",
+    "message": "Vehicle operating under low visibility conditions",
+    "riskScore": 75,
+    "timestamp": "2026-09-05T07:00:00.000Z",
+    "resolved": false
+  },
+  {
+    "id": "ALERT-002",
+    "vehicleId": "TRUCK-02",
+    "type": "OVERSPEED",
+    "severity": "MEDIUM",
+    "message": "Dump truck exceeding haul road speed limit",
+    "riskScore": 58,
+    "timestamp": "2026-09-05T07:01:15.000Z",
+    "resolved": false
+  },
+  {
+    "id": "ALERT-003",
+    "vehicleId": "LOAD-01",
+    "type": "PROXIMITY_RISK",
+    "severity": "CRITICAL",
+    "message": "Loader operating too close to dump truck in loading zone",
+    "riskScore": 89,
+    "timestamp": "2026-09-05T07:01:08.000Z",
+    "resolved": false
+  },
+  {
+    "id": "ALERT-004",
+    "vehicleId": "EXCV-01",
+    "type": "LOW_VISIBILITY",
+    "severity": "LOW",
+    "message": "Excavator visibility dropped near pit edge",
+    "riskScore": 32,
+    "timestamp": "2026-09-05T06:55:10.000Z",
+    "resolved": true
+  }
+]
