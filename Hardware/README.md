@@ -143,6 +143,101 @@ flowchart TD
 
 ## Sensor Fusion Strategy
 
+Brainworks employs a dual-layer perception approach to achieve situational awareness in hazardous mining environments. The system combines cooperative awareness information received from nearby participating Brainworks nodes with non-cooperative obstacle detection gathered from local radar sensing.
+
+### 1. Cooperative Awareness Layer
+
+Participating vehicles acquire geographic position information using an onboard NEO-6M GPS module and share structured awareness messages across the local network via LoRa communication.
+
+The receiving Brainworks node uses these incoming messages to construct and maintain dynamic awareness of other equipped vehicles within its communication range.
+
+```
+GPS Position
+     ↓
+ESP32 Processing
+     ↓
+LoRa Transmission
+     ↓
+Nearby Brainworks Node
+     ↓
+Local Awareness Data
+```
+
+### 2. Non-Cooperative Detection Layer
+
+Not every hazard or object in a mining operating environment is capable of transmitting its position data.
+
+The 24 GHz mmWave radar provides an autonomous local sensing layer that detects nearby physical obstacles or objects within its configured operating capability. Potential obstacle categories include:
+
+- Stationary obstacles
+- Equipment
+- Personnel or workers
+- Other objects not equipped with a Brainworks communication node
+
+```
+Nearby Object
+     ↓
+24 GHz mmWave Radar
+     ↓
+ESP32
+     ↓
+Local Obstacle Information
+```
+
+### 3. Data Fusion and Risk Evaluation
+
+The ESP32 acts as the local decision point for the vehicle node. It aggregates data inputs from all available perception channels:
+
+- Local GPS position data
+- LoRa awareness messages received from nearby participating Brainworks nodes
+- Local non-cooperative obstacle data from the 24 GHz mmWave radar
+
+The aggregated information streams are processed together in the sensor fusion stage and evaluated against risk logic to decide whether a warning state should be triggered.
+
+```
+GPS + LoRa Awareness
+        +
+mmWave Obstacle Data
+        ↓
+ESP32 Local Processing
+        ↓
+Sensor / Data Fusion
+        ↓
+Collision Risk Evaluation
+        ↓
+Warning Decision
+```
+
+### 4. Fusion Logic
+
+| Information Source | Awareness Type | Contribution |
+|---|---|---|
+| GPS + LoRa | Cooperative Awareness | Awareness of participating Brainworks nodes |
+| mmWave Radar | Non-Cooperative Detection | Local sensing of nearby obstacles or objects |
+| Combined Processing | Sensor Fusion | Supports collision-risk evaluation |
+
+### 5. Why Dual-Layer Awareness?
+
+- **Extended Perception**: Extends situational awareness beyond what any single sensing or communication method can provide individually.
+- **Cooperative Vehicle Awareness**: Supports awareness of participating vehicles through wireless position sharing over LoRa.
+- **Non-Cooperative Hazard Sensing**: Adds local radar sensing for physical hazards, unequipped vehicles, or workers that do not transmit position data.
+- **Local Decision-Making**: Enables collision-risk evaluation to be executed entirely locally on the ESP32 main controller.
+- **Zero Cloud Dependency**: Operates seamlessly without requiring cloud processing or active internet connectivity in the immediate hazard warning path.
+
+```mermaid
+flowchart TD
+    GPS["GPS Position Data"] --> ESP32["ESP32 Controller"]
+    LORA["LoRa Received Data"] --> ESP32
+    RADAR["mmWave Radar Data"] --> ESP32
+
+    ESP32 --> FUSION["Sensor & Data Fusion"]
+    FUSION --> RISK["Collision Risk Evaluation"]
+    RISK --> DECISION["Warning Decision"]
+
+    DECISION -->|Safe Condition| SAFE["Continue Monitoring"]
+    DECISION -->|Risk Detected| ALERT["Activate Active Buzzer"]
+```
+
 ## Pin Connections
 
 ## Power Architecture
