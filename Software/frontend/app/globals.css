@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0c0e11;
-  --foreground: #ededed;
+  --background: #07080a;
+  --foreground: #e7e4de;
 }
 
 @theme inline {
@@ -18,19 +18,31 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
-.camera-fog {
-  background:
-    linear-gradient(
-      180deg,
-      rgb(70 78 88 / 0.35) 0%,
-      rgb(42 48 56 / 0.55) 42%,
-      rgb(28 32 38 / 0.9) 100%
-    ),
-    repeating-linear-gradient(
-      90deg,
-      rgb(90 96 104 / 0.12) 0px,
-      rgb(90 96 104 / 0.12) 2px,
-      transparent 2px,
-      transparent 28px
-    );
+.live-dot {
+  animation: live-pulse 2.6s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.28;
+  }
+}
+
+.camera-scan {
+  background: repeating-linear-gradient(
+    to bottom,
+    rgb(255 255 255 / 0.028) 0px,
+    rgb(255 255 255 / 0.028) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  pointer-events: none;
+}
+
+.speed-value {
+  transition: opacity 280ms ease;
 }

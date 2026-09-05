@@ -1,8 +1,8 @@
 import type { VehicleTelemetry } from "@/lib/vehicle-data";
-import { CameraPanel } from "./CameraPanel";
-import { GpsPanel } from "./GpsPanel";
-import { ObstaclePanel } from "./ObstaclePanel";
-import { SpeedPanel } from "./SpeedPanel";
+import { CameraFeedView } from "./CameraFeedView";
+import { GpsSection } from "./GpsSection";
+import { ObstacleSection } from "./ObstacleSection";
+import { SpeedSection } from "./SpeedSection";
 
 type VehicleDashboardProps = {
   telemetry: VehicleTelemetry;
@@ -10,28 +10,30 @@ type VehicleDashboardProps = {
 
 export function VehicleDashboard({ telemetry }: VehicleDashboardProps) {
   return (
-    <div className="flex min-h-full flex-1 flex-col bg-[#0c0e11] text-zinc-100">
-      <header className="flex shrink-0 items-baseline justify-between gap-4 border-b border-zinc-800 px-5 py-3">
-        <div>
-          <p className="text-[11px] font-semibold tracking-[0.22em] text-amber-500/90 uppercase">
-            Brainworks
-          </p>
-          <h1 className="mt-0.5 text-sm font-medium text-zinc-200">
-            Mine vehicle dashboard
-          </h1>
-        </div>
-        <p className="text-right font-mono text-[11px] text-zinc-500">
+    <div className="flex min-h-dvh flex-1 flex-col bg-[#07080a] text-[#e7e4de]">
+      <header className="flex shrink-0 items-center justify-between px-6 py-4 md:px-8">
+        <p className="text-[11px] font-medium tracking-[0.32em] text-white/70 uppercase">
+          Brainworks
+        </p>
+        <p className="font-mono text-[11px] tracking-[0.18em] text-white/30">
           SIH26007
         </p>
       </header>
 
-      <main className="grid min-h-0 flex-1 grid-cols-1 gap-4 p-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(280px,1fr)]">
-        <CameraPanel camera={telemetry.camera} />
-        <div className="grid min-h-0 grid-rows-[auto_auto_auto] gap-4">
-          <SpeedPanel speed={telemetry.speed} />
-          <ObstaclePanel obstacle={telemetry.obstacle} />
-          <GpsPanel gps={telemetry.gps} />
-        </div>
+      <main className="flex min-h-0 flex-1 flex-col border-t border-white/8 lg:flex-row">
+        <CameraFeedView camera={telemetry.camera} />
+
+        <aside className="grid shrink-0 grid-cols-1 border-t border-white/8 md:grid-cols-3 lg:flex lg:w-[22rem] lg:flex-col xl:w-96 lg:border-t-0 lg:border-l">
+          <div className="border-b border-white/8 md:border-r md:border-b-0 lg:flex lg:flex-1 lg:border-r-0 lg:border-b">
+            <SpeedSection speed={telemetry.speed} />
+          </div>
+          <div className="border-b border-white/8 md:border-r md:border-b-0 lg:flex lg:flex-1 lg:border-r-0 lg:border-b">
+            <ObstacleSection obstacle={telemetry.obstacle} />
+          </div>
+          <div className="lg:flex lg:flex-1">
+            <GpsSection gps={telemetry.gps} />
+          </div>
+        </aside>
       </main>
     </div>
   );

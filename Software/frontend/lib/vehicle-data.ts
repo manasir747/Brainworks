@@ -30,19 +30,19 @@ export type VehicleTelemetry = {
 export function getMockVehicleTelemetry(): VehicleTelemetry {
   return {
     camera: {
-      id: "cam-front",
-      label: "Front haul camera",
+      id: "CAM-01",
+      label: "Forward view",
     },
     speed: {
-      value: 18,
+      value: 32,
       unit: "km/hr",
     },
     obstacle: {
       status: "clear",
     },
     gps: {
-      latitude: 18.6364,
-      longitude: 81.2512,
+      latitude: 18.5204,
+      longitude: 73.8567,
     },
   };
 }
