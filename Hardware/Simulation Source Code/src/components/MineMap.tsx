@@ -94,7 +94,7 @@ const MineMap: React.FC<MineMapProps> = ({ vehicles, obstacles, onSelectVehicle,
             key={v.id} 
             transform={`translate(${v.position.x}, ${v.position.y})`}
             onClick={() => onSelectVehicle(v.id)}
-            className="cursor-pointer transition-transform duration-200"
+            className="cursor-pointer"
           >
             {/* Selection Highlight */}
             {selectedVehicleId === v.id && (
@@ -110,6 +110,14 @@ const MineMap: React.FC<MineMapProps> = ({ vehicles, obstacles, onSelectVehicle,
               <rect x="-15" y="-10" width="30" height="20" rx="3" fill="#333" stroke={getRiskColor(v.risk)} strokeWidth="2" />
               <rect x="5" y="-8" width="8" height="16" rx="1" fill="#111" /> {/* Cab */}
               <polygon points="15,-5 20,0 15,5" fill={getRiskColor(v.risk)} /> {/* Direction arrow */}
+              
+              {/* Brake Lights when stopped */}
+              {v.movementState === 'STOPPED' && (
+                 <g>
+                   <circle cx="-16" cy="-8" r="2" fill="#ef4444" className="animate-pulse" />
+                   <circle cx="-16" cy="8" r="2" fill="#ef4444" className="animate-pulse" />
+                 </g>
+              )}
             </g>
             <text y="-20" fill="#fff" fontSize="12" textAnchor="middle" fontWeight="bold" style={{ textShadow: '0px 1px 2px black' }}>
               {v.id}

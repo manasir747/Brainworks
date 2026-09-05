@@ -13,6 +13,8 @@ export interface Vehicle {
   targetPosition: Position | null;
   path: Position[];
   risk: RiskLevel;
+  movementState: 'MOVING' | 'STOPPED';
+  stopReason: string | null;
   statuses: {
     gps: boolean;
     lora: boolean;
@@ -48,6 +50,8 @@ export interface Environment {
 export interface SimulationState {
   isPlaying: boolean;
   speedMultiplier: number;
+  scenarioStatus: 'IDLE' | 'LOADING' | 'READY';
+  scenarioName: string | null;
   vehicles: Vehicle[];
   obstacles: Obstacle[];
   environment: Environment;

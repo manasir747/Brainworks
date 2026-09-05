@@ -139,6 +139,14 @@ function App() {
                  </div>
                </div>
              )}
+             
+             {state.scenarioStatus === 'LOADING' && (
+               <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center animate-in fade-in duration-300">
+                 <RotateCcw className="w-12 h-12 text-primary animate-spin mb-4" />
+                 <h2 className="text-xl font-bold tracking-widest text-white mb-2">RESETTING SIMULATION</h2>
+                 <p className="text-sm text-primary uppercase">LOADING SCENARIO: {state.scenarioName}</p>
+               </div>
+             )}
           </div>
         </section>
 
@@ -161,13 +169,20 @@ function App() {
                <div className="grid grid-cols-2 gap-4 text-sm">
                  <div className="bg-[#1a1a1a] p-3 rounded">
                    <div className="text-gray-500 text-xs mb-1">Speed</div>
-                   <div className="font-mono text-lg">{selectedVehicle.speed.toFixed(0)} <span className="text-xs text-gray-500">km/h</span></div>
+                   <div className="font-mono text-lg">{selectedVehicle.movementState === 'STOPPED' ? 0 : selectedVehicle.speed.toFixed(0)} <span className="text-xs text-gray-500">km/h</span></div>
                  </div>
                  <div className="bg-[#1a1a1a] p-3 rounded">
                    <div className="text-gray-500 text-xs mb-1">Heading</div>
                    <div className="font-mono text-lg">{selectedVehicle.heading.toFixed(0)}°</div>
                  </div>
                </div>
+
+               {selectedVehicle.movementState === 'STOPPED' && (
+                 <div className="bg-critical/20 border border-critical p-3 rounded text-center animate-pulse">
+                   <div className="text-critical font-bold text-sm">🛑 VEHICLE STOPPED</div>
+                   {selectedVehicle.stopReason && <div className="text-xs text-critical/80 mt-1 uppercase">{selectedVehicle.stopReason}</div>}
+                 </div>
+               )}
 
                <div className="bg-[#1a1a1a] p-4 rounded-lg flex flex-col gap-3">
                   <h3 className="text-xs font-bold text-gray-500 uppercase">Sensor Status</h3>
