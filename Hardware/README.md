@@ -407,6 +407,49 @@ LOOP:
 
 ## Hardware Prototype
 
+The Brainworks prototype integrates main processing, wireless communication, positioning, sensing, and warning components into a functional hardware node for prototype-level validation and proof-of-concept testing.
+
+### Prototype Architecture
+
+- **ESP32**: Central processing and control unit coordinating all peripherals and risk logic.
+- **LoRa SX1278 / Ra-02**: Long-range wireless module for inter-node communication between Brainworks vehicles.
+- **NEO-6M GPS**: Positioning module providing vehicle location data.
+- **24 GHz mmWave Radar**: Local sensing module for non-cooperative obstacle detection.
+- **Active Buzzer**: Audible alert mechanism providing immediate local operator warnings.
+- **Regulated Power Setup**: Regulated power distribution arrangement ensuring stable power to prototype modules.
+
+### Prototype Images
+
+Prototype photographs will be stored in `Hardware/images/`.
+
+<!-- Add prototype overview image here -->
+
+<!-- Add ESP32 and LoRa setup image here -->
+
+<!-- Add complete Brainworks hardware node image here -->
+
+### Prototype Operation
+
+1. The node acquires available position information using the NEO-6M GPS module.
+2. The ESP32 processes the available local position and telemetry data.
+3. Awareness information can be exchanged with nearby Brainworks nodes through LoRa wireless communication.
+4. The 24 GHz mmWave radar provides local obstacle sensing information for unequipped or non-transmitting objects.
+5. Available sensor and communication data streams are evaluated locally on the ESP32 main controller.
+6. When a configured risk condition is detected, the active buzzer provides an immediate local warning to the operator.
+
+> [!NOTE]
+> This operational description represents a prototype-level setup. Further industrial testing, environmental validation, and safety certification would be required before real-world deployment in active mining operations.
+
+### Repository Image Structure
+
+```
+Hardware/
+└── images/
+    ├── prototype-overview.jpg
+    ├── component-setup.jpg
+    └── complete-node.jpg
+```
+
 ## Bill of Materials
 
 ## Future Hardware Improvements
