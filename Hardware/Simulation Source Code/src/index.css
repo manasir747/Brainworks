@@ -31,3 +31,27 @@
     opacity: 0;
   }
 }
+
+.terminal-cursor {
+  display: inline-block;
+  width: 6px;
+  height: 11px;
+  background: #22c55e;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-spin-slow {
+  animation: spin 4s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

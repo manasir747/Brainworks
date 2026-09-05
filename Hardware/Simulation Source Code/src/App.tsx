@@ -87,246 +87,333 @@ function App() {
 
   const selectedVehicle = state.vehicles.find(v => v.id === state.selectedVehicleId);
 
+  // Helper to map risk level to terminal display
+  const riskLabel = (risk: string) => {
+    switch (risk) {
+      case 'SAFE':     return { text: 'SAFE',     cls: 'text-success' };
+      case 'CAUTION':  return { text: 'CAUTION',  cls: 'text-caution' };
+      case 'WARNING':  return { text: 'WARNING',  cls: 'text-warning' };
+      case 'CRITICAL': return { text: '⚠ CRITICAL', cls: 'text-critical animate-pulse' };
+      default:         return { text: risk,        cls: 'text-gray-400' };
+    }
+  };
+
+  const sensorStatus = (active: boolean) =>
+    active
+      ? <span className="text-success">ONLINE</span>
+      : <span className="text-critical animate-pulse">FAULT</span>;
+
   return (
     <div className="flex flex-col h-screen w-full bg-[#0a0a0a] text-gray-200 font-sans">
-      {/* Top Bar */}
-      <header className="flex justify-between items-center px-6 py-4 bg-[#111] border-b border-[#222]">
-        <div className="flex items-center gap-4">
-          <Activity className="text-primary w-6 h-6" />
+      {/* Top Bar — compact */}
+      <header className="flex justify-between items-center px-4 py-2 bg-[#0d0d0d] border-b border-[#1e1e1e] shrink-0">
+        <div className="flex items-center gap-3">
+          <Activity className="text-primary w-5 h-5" />
           <div>
-            <h1 className="text-xl font-bold tracking-wider text-white">BRAINWORKS</h1>
-            <p className="text-xs text-gray-500 uppercase tracking-widest">Mine Vehicle Safety Simulation</p>
+            <h1 className="text-base font-bold tracking-wider text-white leading-none">BRAINWORKS</h1>
+            <p className="text-[10px] text-gray-600 uppercase tracking-widest">Mine Vehicle Safety Simulation</p>
           </div>
         </div>
-        <div className="flex items-center gap-6">
-           <div className="text-xs bg-[#222] px-3 py-1 rounded text-gray-400">SIMULATION • PROOF OF CONCEPT</div>
-           <div className="flex items-center gap-2">
-             <div className={`w-3 h-3 rounded-full ${state.systemStatus.network ? 'bg-success' : 'bg-critical'}`} />
-             <span className="text-sm font-semibold">{state.systemStatus.network ? 'SYSTEM NORMAL' : 'NETWORK OFFLINE'}</span>
-           </div>
+        <div className="flex items-center gap-4">
+          <div className="text-[10px] bg-[#1a1a1a] px-2 py-0.5 rounded text-gray-500 border border-[#2a2a2a]">SIMULATION • PROOF OF CONCEPT</div>
+          <div className="flex items-center gap-1.5">
+            <div className={`w-2 h-2 rounded-full ${state.systemStatus.network ? 'bg-success' : 'bg-critical'}`} />
+            <span className="text-xs font-semibold font-mono">
+              {state.systemStatus.network ? 'SYS_NORMAL' : 'NET_OFFLINE'}
+            </span>
+          </div>
         </div>
       </header>
 
       <main className="flex flex-1 overflow-hidden">
-        {/* Left Sidebar */}
-        <aside className="w-64 bg-[#111] border-r border-[#222] p-4 flex flex-col gap-6 overflow-y-auto">
+        {/* ── LEFT SIDEBAR — compact controls ── */}
+        <aside className="w-44 bg-[#0d0d0d] border-r border-[#1e1e1e] p-3 flex flex-col gap-4 overflow-y-auto shrink-0">
           
-          <div className="flex flex-col gap-4">
-            <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Simulation Controls</h2>
-            <div className="flex gap-2">
-              <button onClick={togglePlay} className="flex-1 bg-[#222] hover:bg-[#333] p-2 rounded flex justify-center items-center">
-                {state.isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 text-success" />}
+          {/* Playback Controls */}
+          <div className="flex flex-col gap-2">
+            <h2 className="text-[10px] font-bold text-gray-600 uppercase tracking-wider">Controls</h2>
+            <div className="flex gap-1.5">
+              <button onClick={togglePlay} className="flex-1 bg-[#1a1a1a] hover:bg-[#252525] border border-[#2a2a2a] p-1.5 rounded flex justify-center items-center transition-colors">
+                {state.isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 text-success" />}
               </button>
-              <button onClick={reset} className="flex-1 bg-[#222] hover:bg-[#333] p-2 rounded flex justify-center items-center">
-                <RotateCcw className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="flex gap-2">
-              <button 
-                onClick={() => addObstacle('ROCKFALL')}
-                className="flex-1 bg-critical/20 hover:bg-critical/30 text-critical border border-critical/50 text-xs font-bold py-1.5 rounded transition-colors"
-              >
-                + ADD ROCKFALL
-              </button>
-              <button 
-                onClick={() => addObstacle('EQUIPMENT')}
-                className="flex-1 bg-caution/20 hover:bg-caution/30 text-caution border border-caution/50 text-xs font-bold py-1.5 rounded transition-colors"
-              >
-                + ADD OBSTACLE
-              </button>
-            </div>
-            
-            <div className="flex justify-between items-center bg-[#1a1a1a] p-2 rounded border border-[#333]">
-              <div className="flex flex-col">
-                 <span className="text-xs font-bold text-gray-500 uppercase">Vehicles</span>
-                 <span className="text-sm font-bold text-white">{state.vehicles.length} ACTIVE</span>
-              </div>
-              <button 
-                onClick={addVehicle}
-                className="bg-primary/20 hover:bg-primary/30 text-primary border border-primary/50 text-xs font-bold px-3 py-1.5 rounded transition-colors"
-              >
-                + ADD VEHICLE
+              <button onClick={reset} className="flex-1 bg-[#1a1a1a] hover:bg-[#252525] border border-[#2a2a2a] p-1.5 rounded flex justify-center items-center transition-colors">
+                <RotateCcw className="w-4 h-4" />
               </button>
             </div>
 
-            <button 
-              onClick={() => setAlertsEnabled(!alertsEnabled)}
-              className="flex justify-between items-center bg-[#1a1a1a] p-2 rounded border border-[#333] hover:bg-[#222] transition-colors w-full text-left"
-            >
-              <span className="text-xs font-bold text-gray-500 uppercase">Alerts</span>
-              <span className="text-sm">{alertsEnabled ? '🔊 ON' : '🔇 OFF'}</span>
-            </button>
-            
-            <div className="flex gap-1 text-sm bg-[#1a1a1a] p-1 rounded">
+            {/* Speed */}
+            <div className="flex gap-0.5 text-[10px] bg-[#1a1a1a] p-0.5 rounded border border-[#2a2a2a]">
               {[0.5, 1, 2, 4].map(s => (
-                <button 
-                  key={s} 
+                <button
+                  key={s}
                   onClick={() => setSpeed(s)}
-                  className={`flex-1 py-1 rounded ${state.speedMultiplier === s ? 'bg-[#333] text-white' : 'text-gray-500 hover:text-gray-300'}`}
+                  className={`flex-1 py-0.5 rounded transition-colors ${state.speedMultiplier === s ? 'bg-[#2e2e2e] text-white' : 'text-gray-600 hover:text-gray-400'}`}
                 >
                   {s}x
                 </button>
               ))}
             </div>
+
+            {/* Alerts toggle */}
+            <button
+              onClick={() => setAlertsEnabled(!alertsEnabled)}
+              className="flex justify-between items-center bg-[#1a1a1a] px-2 py-1 rounded border border-[#2a2a2a] hover:bg-[#222] transition-colors w-full text-left"
+            >
+              <span className="text-[10px] font-bold text-gray-600 uppercase">Alerts</span>
+              <span className="text-xs">{alertsEnabled ? '🔊' : '🔇'}</span>
+            </button>
           </div>
 
-          <div className="flex flex-col gap-2">
-             <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Scenarios</h2>
-             {[
-               {id: 'blind-corner', label: 'Blind Corner'},
-               {id: 'rockfall', label: 'Rockfall'},
-               {id: 'lora-failure', label: 'LoRa Failure'},
-             ].map(sc => (
-               <button 
-                 key={sc.id}
-                 onClick={() => loadScenario(sc.id)}
-                 className="text-left px-3 py-2 bg-[#1a1a1a] hover:bg-[#2a2a2a] rounded text-sm transition-colors border border-[#333]"
-               >
-                 • {sc.label}
-               </button>
-             ))}
+          {/* Spawn Controls */}
+          <div className="flex flex-col gap-1.5">
+            <h2 className="text-[10px] font-bold text-gray-600 uppercase tracking-wider">Spawn</h2>
+            <div className="flex justify-between items-center bg-[#1a1a1a] px-2 py-1 rounded border border-[#2a2a2a]">
+              <span className="text-[10px] text-gray-500">{state.vehicles.length} VEHICLE{state.vehicles.length !== 1 ? 'S' : ''}</span>
+              <button
+                onClick={addVehicle}
+                className="bg-primary/20 hover:bg-primary/30 text-primary border border-primary/40 text-[10px] font-bold px-2 py-0.5 rounded transition-colors"
+              >
+                + ADD
+              </button>
+            </div>
+            <button
+              onClick={() => addObstacle('ROCKFALL')}
+              className="bg-critical/10 hover:bg-critical/20 text-critical border border-critical/40 text-[10px] font-bold py-1 rounded transition-colors"
+            >
+              + ROCKFALL
+            </button>
+            <button
+              onClick={() => addObstacle('EQUIPMENT')}
+              className="bg-caution/10 hover:bg-caution/20 text-caution border border-caution/40 text-[10px] font-bold py-1 rounded transition-colors"
+            >
+              + OBSTACLE
+            </button>
           </div>
 
-          <div className="flex flex-col gap-3 mt-auto">
-             <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Fault Injection</h2>
-             {Object.entries(state.systemStatus).map(([key, val]) => (
-                <label key={key} className="flex items-center justify-between text-sm cursor-pointer group">
-                  <span className="uppercase text-gray-400 group-hover:text-gray-200">{key}</span>
-                  <div className={`w-10 h-5 rounded-full relative transition-colors ${val ? 'bg-success/30' : 'bg-critical/30'}`}>
-                    <div className={`absolute top-0.5 w-4 h-4 rounded-full transition-transform ${val ? 'bg-success translate-x-5' : 'bg-critical translate-x-0.5'}`} />
-                  </div>
-                  <input type="checkbox" className="hidden" checked={val} onChange={() => setState(s => ({...s, systemStatus: {...s.systemStatus, [key]: !val}}))} />
-                </label>
-             ))}
+          {/* Scenarios */}
+          <div className="flex flex-col gap-1">
+            <h2 className="text-[10px] font-bold text-gray-600 uppercase tracking-wider mb-0.5">Scenarios</h2>
+            {[
+              { id: 'blind-corner', label: 'Blind Corner' },
+              { id: 'rockfall',     label: 'Rockfall' },
+              { id: 'lora-failure', label: 'LoRa Failure' },
+            ].map(sc => (
+              <button
+                key={sc.id}
+                onClick={() => loadScenario(sc.id)}
+                className="text-left px-2 py-1 bg-[#1a1a1a] hover:bg-[#232323] rounded text-[10px] transition-colors border border-[#2a2a2a] text-gray-400 hover:text-gray-200"
+              >
+                › {sc.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Fault Injection */}
+          <div className="flex flex-col gap-2 mt-auto">
+            <h2 className="text-[10px] font-bold text-gray-600 uppercase tracking-wider">Fault Injection</h2>
+            {Object.entries(state.systemStatus).map(([key, val]) => (
+              <label key={key} className="flex items-center justify-between text-[10px] cursor-pointer group">
+                <span className="uppercase text-gray-500 group-hover:text-gray-300 font-mono">{key}</span>
+                <div className={`w-8 h-4 rounded-full relative transition-colors ${val ? 'bg-success/25' : 'bg-critical/25'}`}>
+                  <div className={`absolute top-0.5 w-3 h-3 rounded-full transition-transform ${val ? 'bg-success translate-x-4' : 'bg-critical translate-x-0.5'}`} />
+                </div>
+                <input type="checkbox" className="hidden" checked={val} onChange={() => setState(s => ({ ...s, systemStatus: { ...s.systemStatus, [key]: !val } }))} />
+              </label>
+            ))}
           </div>
         </aside>
 
-        {/* Center Area (Map) */}
-        <section className="flex-1 p-6 flex flex-col min-w-0 bg-[#0a0a0a]">
-          <div className="flex-1 rounded-xl shadow-2xl relative overflow-hidden">
-             <MineMap 
-               vehicles={state.vehicles} 
-               obstacles={state.obstacles}
-               onSelectVehicle={(id) => setState(s => ({...s, selectedVehicleId: id}))}
-               selectedVehicleId={state.selectedVehicleId}
-               fog={state.environment.fog}
-               systemStatus={state.systemStatus}
-             />
-             
-             {state.vehicles.some(v => v.risk === 'CRITICAL') && (
-               <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-critical/90 backdrop-blur text-white px-6 py-3 rounded-lg flex items-center gap-3 shadow-[0_0_30px_rgba(239,68,68,0.5)] animate-pulse">
-                 <AlertTriangle className="w-8 h-8" />
-                 <div>
-                   <div className="font-bold text-lg leading-tight">COLLISION RISK</div>
-                   <div className="text-sm opacity-90">HAZARD DETECTED</div>
-                 </div>
-               </div>
-             )}
-             
-             {state.scenarioStatus === 'LOADING' && (
-               <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center animate-in fade-in duration-300">
-                 <RotateCcw className="w-12 h-12 text-primary animate-spin mb-4" />
-                 <h2 className="text-xl font-bold tracking-widest text-white mb-2">RESETTING SIMULATION</h2>
-                 <p className="text-sm text-primary uppercase">LOADING SCENARIO: {state.scenarioName}</p>
-               </div>
-             )}
+        {/* ── CENTER — Simulation Canvas (dominant) ── */}
+        <section className="flex-1 p-2 flex flex-col min-w-0 bg-[#0a0a0a]">
+          <div className="flex-1 relative overflow-hidden rounded-lg border border-[#1e1e1e] shadow-2xl">
+            <MineMap
+              vehicles={state.vehicles}
+              obstacles={state.obstacles}
+              onSelectVehicle={(id) => setState(s => ({ ...s, selectedVehicleId: id }))}
+              selectedVehicleId={state.selectedVehicleId}
+              fog={state.environment.fog}
+              systemStatus={state.systemStatus}
+            />
+
+            {/* Critical collision banner */}
+            {state.vehicles.some(v => v.risk === 'CRITICAL') && (
+              <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-critical/90 backdrop-blur text-white px-5 py-2 rounded-lg flex items-center gap-2 shadow-[0_0_30px_rgba(239,68,68,0.5)] animate-pulse z-10">
+                <AlertTriangle className="w-5 h-5" />
+                <div>
+                  <div className="font-bold text-sm leading-tight">COLLISION RISK</div>
+                  <div className="text-xs opacity-90">HAZARD DETECTED</div>
+                </div>
+              </div>
+            )}
+
+            {/* Scenario loading overlay */}
+            {state.scenarioStatus === 'LOADING' && (
+              <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center animate-in fade-in duration-300">
+                <RotateCcw className="w-10 h-10 text-primary animate-spin mb-3" />
+                <h2 className="text-lg font-bold tracking-widest text-white mb-1">RESETTING SIMULATION</h2>
+                <p className="text-xs text-primary uppercase font-mono">LOADING SCENARIO: {state.scenarioName}</p>
+              </div>
+            )}
+
+            {/* Corner HUD — simulation clock */}
+            <div className="absolute bottom-2 left-2 font-mono text-[10px] text-gray-600 select-none">
+              T+{(state.time / 1000).toFixed(1)}s &nbsp;|&nbsp; {state.vehicles.length} VEH &nbsp;|&nbsp; {state.obstacles.length} OBS
+            </div>
           </div>
         </section>
 
-        {/* Right Sidebar */}
-        <aside className="w-80 bg-[#111] border-l border-[#222] p-4 flex flex-col gap-6 overflow-y-auto">
-          {selectedVehicle ? (
-            <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-right-4 duration-300">
-                <div className="flex justify-between items-center border-b border-[#333] pb-3">
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-lg font-bold text-white">{selectedVehicle.id}</h2>
-                    <button 
+        {/* ── RIGHT SIDEBAR — Terminal Telemetry ── */}
+        <aside className="w-56 bg-[#0d0d0d] border-l border-[#1e1e1e] flex flex-col overflow-hidden shrink-0">
+
+          {/* ─── LIVE TELEMETRY TERMINAL ─── */}
+          <div className="flex-1 overflow-y-auto p-2">
+            <div className="border border-[#2a2a2a] rounded font-mono text-[11px] overflow-hidden">
+              {/* Terminal title bar */}
+              <div className="flex items-center gap-1.5 bg-[#161616] border-b border-[#2a2a2a] px-2 py-1.5">
+                <div className="w-2 h-2 rounded-full bg-[#ff5f57]" />
+                <div className="w-2 h-2 rounded-full bg-[#ffbd2e]" />
+                <div className="w-2 h-2 rounded-full bg-[#28c840]" />
+                <span className="ml-1 text-[10px] text-gray-500 uppercase tracking-widest">live_telemetry.sh</span>
+                {state.isPlaying && <span className="terminal-cursor ml-auto" />}
+              </div>
+
+              {/* Terminal body */}
+              <div className="p-2 bg-[#0d0d0d] space-y-0.5">
+                {selectedVehicle ? (
+                  <>
+                    <TRow label="VEHICLE_ID"  value={selectedVehicle.id} cls="text-primary font-bold" />
+                    <TRow
+                      label="STATUS"
+                      value={selectedVehicle.movementState}
+                      cls={selectedVehicle.movementState === 'STOPPED' ? 'text-critical animate-pulse' : 'text-success'}
+                    />
+                    {selectedVehicle.movementState === 'STOPPED' && selectedVehicle.stopReason && (
+                      <TRow label="STOP_REASON" value={selectedVehicle.stopReason} cls="text-critical text-[10px]" />
+                    )}
+                    <div className="border-t border-[#1e1e1e] my-1" />
+                    <TRow
+                      label="SPEED"
+                      value={`${selectedVehicle.movementState === 'STOPPED' ? 0 : selectedVehicle.speed.toFixed(0)} km/h`}
+                      cls="text-gray-200"
+                    />
+                    <TRow label="HEADING"     value={`${selectedVehicle.heading.toFixed(0)}°`} cls="text-gray-200" />
+                    <div className="border-t border-[#1e1e1e] my-1" />
+                    <TRow
+                      label="GPS"
+                      valueNode={sensorStatus(selectedVehicle.statuses.gps && state.systemStatus.gps)}
+                    />
+                    <TRow
+                      label="LORA"
+                      valueNode={sensorStatus(selectedVehicle.statuses.lora && state.systemStatus.lora)}
+                    />
+                    <TRow
+                      label="RADAR"
+                      valueNode={sensorStatus(selectedVehicle.statuses.radar && state.systemStatus.radar)}
+                    />
+                    <TRow
+                      label="EDGE_PROC"
+                      valueNode={sensorStatus(selectedVehicle.statuses.edge && state.systemStatus.edge)}
+                    />
+                    <div className="border-t border-[#1e1e1e] my-1" />
+                    {selectedVehicle.nearestHazard.distance !== null ? (
+                      <>
+                        <TRow
+                          label="NEAR_HAZARD"
+                          value={`${selectedVehicle.nearestHazard.distance} m`}
+                          cls={selectedVehicle.risk === 'CRITICAL' ? 'text-critical font-bold' : 'text-warning'}
+                        />
+                        <TRow
+                          label="HAZARD_TYPE"
+                          value={selectedVehicle.nearestHazard.type ?? '—'}
+                          cls="text-gray-300"
+                        />
+                      </>
+                    ) : (
+                      <TRow label="NEAR_HAZARD" value="NONE" cls="text-success" />
+                    )}
+                    <TRow
+                      label="RISK_LEVEL"
+                      value={riskLabel(selectedVehicle.risk).text}
+                      cls={riskLabel(selectedVehicle.risk).cls}
+                    />
+                    <div className="border-t border-[#1e1e1e] my-1" />
+                    {/* Remove vehicle */}
+                    <button
                       onClick={() => removeVehicle(selectedVehicle.id)}
-                      className="text-gray-500 hover:text-critical p-1 rounded hover:bg-critical/10 transition-colors"
-                      title="Remove Vehicle"
+                      className="w-full text-left text-[10px] text-gray-600 hover:text-critical transition-colors mt-1 font-mono"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                      &gt; <span className="underline underline-offset-2">rm {selectedVehicle.id}</span>
                     </button>
+                  </>
+                ) : (
+                  <div className="py-3 space-y-1 text-gray-600">
+                    <div>&gt; NO_VEHICLE_SELECTED</div>
+                    <div>&gt; click a vehicle on</div>
+                    <div>&gt; the map to begin_</div>
+                    <MonitorSmartphone className="w-5 h-5 mt-2 opacity-30" />
                   </div>
-                 <div className={`px-2 py-0.5 rounded text-xs font-bold ${
-                   selectedVehicle.risk === 'SAFE' ? 'bg-success/20 text-success' :
-                   selectedVehicle.risk === 'CAUTION' ? 'bg-caution/20 text-caution' :
-                   selectedVehicle.risk === 'WARNING' ? 'bg-warning/20 text-warning' :
-                   'bg-critical/20 text-critical animate-pulse'
-                 }`}>
-                   {selectedVehicle.risk}
-                 </div>
-               </div>
+                )}
+              </div>
+            </div>
+          </div>
 
-               <div className="grid grid-cols-2 gap-4 text-sm">
-                 <div className="bg-[#1a1a1a] p-3 rounded">
-                   <div className="text-gray-500 text-xs mb-1">Speed</div>
-                   <div className="font-mono text-lg">{selectedVehicle.movementState === 'STOPPED' ? 0 : selectedVehicle.speed.toFixed(0)} <span className="text-xs text-gray-500">km/h</span></div>
-                 </div>
-                 <div className="bg-[#1a1a1a] p-3 rounded">
-                   <div className="text-gray-500 text-xs mb-1">Heading</div>
-                   <div className="font-mono text-lg">{selectedVehicle.heading.toFixed(0)}°</div>
-                 </div>
-               </div>
-
-               {selectedVehicle.movementState === 'STOPPED' && (
-                 <div className="bg-critical/20 border border-critical p-3 rounded text-center animate-pulse">
-                   <div className="text-critical font-bold text-sm">🛑 VEHICLE STOPPED</div>
-                   {selectedVehicle.stopReason && <div className="text-xs text-critical/80 mt-1 uppercase">{selectedVehicle.stopReason}</div>}
-                 </div>
-               )}
-
-               <div className="bg-[#1a1a1a] p-4 rounded-lg flex flex-col gap-3">
-                  <h3 className="text-xs font-bold text-gray-500 uppercase">Sensor Status</h3>
-                  <div className="space-y-2 text-sm">
-                    {['gps', 'lora', 'radar', 'edge'].map(sensor => {
-                       const isActive = selectedVehicle.statuses[sensor as keyof typeof selectedVehicle.statuses] && state.systemStatus[sensor as keyof typeof state.systemStatus];
-                       return (
-                         <div key={sensor} className="flex justify-between items-center">
-                           <span className="uppercase text-gray-400">{sensor}</span>
-                           <span className={`text-xs font-bold ${isActive ? 'text-success' : 'text-critical'}`}>
-                             {isActive ? 'ACTIVE' : 'FAULT'}
-                           </span>
-                         </div>
-                       )
-                    })}
+          {/* ─── EVENT LOG TERMINAL ─── */}
+          <div className="border-t border-[#1e1e1e] p-2 flex flex-col" style={{ height: '40%', minHeight: '140px' }}>
+            <div className="border border-[#2a2a2a] rounded font-mono text-[10px] overflow-hidden flex flex-col h-full">
+              {/* Title bar */}
+              <div className="flex items-center gap-2 bg-[#161616] border-b border-[#2a2a2a] px-2 py-1 shrink-0">
+                <span className="text-gray-600 uppercase tracking-widest">event_log.sh</span>
+                <span className="ml-auto text-gray-700">{state.logs.length} entries</span>
+              </div>
+              {/* Log lines */}
+              <div className="overflow-y-auto flex-1 p-1.5 space-y-0.5 bg-[#080808] flex flex-col-reverse">
+                {state.logs.map(log => (
+                  <div key={log.id} className="flex gap-1.5 leading-tight">
+                    <span className="text-gray-700 shrink-0">[{log.timestamp}]</span>
+                    <span className={`shrink-0 font-bold ${
+                      log.type === 'INFO'     ? 'text-primary' :
+                      log.type === 'WARNING'  ? 'text-warning' :
+                      'text-critical'
+                    }`}>
+                      [{log.type.slice(0, 4)}]
+                    </span>
+                    <span className={
+                      log.type === 'INFO'     ? 'text-gray-400' :
+                      log.type === 'WARNING'  ? 'text-warning/80' :
+                      'text-critical/80'
+                    }>
+                      {log.message}
+                    </span>
                   </div>
-               </div>
-
-               {selectedVehicle.nearestHazard.distance !== null && (
-                 <div className={`p-4 rounded-lg border ${selectedVehicle.risk === 'CRITICAL' ? 'bg-critical/10 border-critical/50 text-critical' : 'bg-[#1a1a1a] border-[#333]'}`}>
-                   <div className="text-xs uppercase mb-1 opacity-80">Nearest Hazard</div>
-                   <div className="font-mono text-2xl font-bold">{selectedVehicle.nearestHazard.distance} <span className="text-sm">m</span></div>
-                   <div className="text-xs opacity-70 mt-1">{selectedVehicle.nearestHazard.type} DETECTED</div>
-                 </div>
-               )}
-            </div>
-          ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-gray-600 text-center p-6 border-2 border-dashed border-[#222] rounded-xl">
-               <MonitorSmartphone className="w-12 h-12 mb-4 opacity-50" />
-               <p>Select a vehicle on the map to view detailed telemetry.</p>
-            </div>
-          )}
-          
-          <div className="mt-auto border-t border-[#333] pt-4">
-            <h3 className="text-xs font-bold text-gray-500 uppercase mb-3">Live Event Log</h3>
-            <div className="h-48 overflow-y-auto pr-2 space-y-2 flex flex-col-reverse text-xs font-mono">
-              {state.logs.map(log => (
-                <div key={log.id} className={`p-2 rounded border-l-2 ${
-                  log.type === 'INFO' ? 'border-primary bg-primary/5 text-gray-300' :
-                  log.type === 'WARNING' ? 'border-warning bg-warning/5 text-warning' :
-                  'border-critical bg-critical/5 text-critical'
-                }`}>
-                  <span className="opacity-50 mr-2">{log.timestamp}</span>
-                  {log.message}
-                </div>
-              ))}
-              {state.logs.length === 0 && <div className="text-gray-600 text-center italic py-4">No events recorded.</div>}
+                ))}
+                {state.logs.length === 0 && (
+                  <div className="text-gray-700 italic py-2">&gt; awaiting events...</div>
+                )}
+              </div>
             </div>
           </div>
         </aside>
       </main>
+    </div>
+  );
+}
+
+// ── Terminal row helper ──────────────────────────────────────────────────────
+interface TRowProps {
+  label: string;
+  value?: string;
+  cls?: string;
+  valueNode?: React.ReactNode;
+}
+
+function TRow({ label, value, cls = 'text-gray-300', valueNode }: TRowProps) {
+  const paddedLabel = label.padEnd(11, ' ');
+  return (
+    <div className="flex gap-1 leading-snug">
+      <span className="text-gray-700 shrink-0">&gt;</span>
+      <span className="text-gray-600 shrink-0 whitespace-pre">{paddedLabel}</span>
+      <span className="text-gray-700 shrink-0">:</span>
+      <span className={`${cls} truncate`}>{valueNode ?? value}</span>
     </div>
   );
 }
