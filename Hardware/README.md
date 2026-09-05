@@ -487,3 +487,59 @@ The exact component configuration may evolve depending on prototype testing, ope
 > Component costs are dependent on the selected module versions, suppliers, quantities, and prototype configuration. A detailed cost analysis can be added after final component procurement and validation.
 
 ## Future Hardware Improvements
+
+The current Brainworks implementation represents a prototype-level hardware architecture developed for proof-of-concept testing and initial validation. Future hardware iterations can enhance positioning accuracy, local sensing capability, wireless communication robustness, electrical power protection, and physical environmental durability.
+
+### 1. Improved Positioning and Motion Awareness
+
+- **High-Accuracy Positioning**: Integration of higher-precision GNSS/positioning hardware where operational conditions require finer spatial resolution.
+- **Inertial Measurement Unit (IMU)**: Addition of 6-axis or 9-axis IMUs to capture real-time vehicle dynamics, orientation, acceleration, and heading.
+- **Enhanced Motion Estimation**: Implementation of dead-reckoning and kinematic modeling to estimate vehicle movement during temporary GPS outages.
+- **Alternative Positioning Tech**: Exploration of complementary positioning techniques suitable for underground mines or deep pit environments.
+
+### 2. Enhanced Communication Architecture
+
+- **Multi-Node Traffic Management**: Advanced MAC protocols and channel access algorithms to handle high-density node clusters efficiently.
+- **Safety Message Prioritization**: Implementation of Quality-of-Service (QoS) and packet prioritization for emergency hazard alerts.
+- **Communication Redundancy**: Dual-band or multi-channel communication links to mitigate RF interference and fading in industrial sites.
+- **Scalable Network Protocols**: Mesh or multi-hop relay capabilities for extended range across large open-pit mining operations.
+- **Alternative Wireless Tech**: Evaluation of complementary RF technologies (e.g., UWB, Cellular V2X) for hybrid communication setups.
+
+### 3. Advanced Local Sensing
+
+- **Multi-Modal Sensing**: Integration of additional sensor modalities (such as ultrasonic arrays or optical sensors) for enhanced near-field detection.
+- **Sensor Redundancy**: Overlapping coverage zones to prevent blind spots and improve object detection reliability.
+- **Target Tracking & Classification**: Improved obstacle tracking algorithms where supported by future hardware capabilities and processing units.
+- **Harsh-Environment Sensing**: Evaluation of specialized sensors resistant to heavy dust, mud, vibration, and extreme temperature variations.
+
+### 4. Industrial-Grade Hardware Integration
+
+- **Ruggedized Enclosures**: Transition from development breadboard setups to IP67/IP68 rated industrial enclosures.
+- **Vibration & Impact Resistance**: Mechanical dampening and shock-proof mounting designed for heavy mining machinery.
+- **Industrial Connectors**: Sealed M12 or automotive-grade wiring harnesses replacing prototype jumper wires.
+- **Enhanced Power Protection**: Dedicated power management ICs featuring surge protection, reverse-polarity protection, and transient voltage suppression (TVS).
+- **Vehicle Electrical Integration**: Wide-input DC-DC step-down converters compatible with standard 12V/24V heavy equipment electrical systems.
+
+### 5. Improved Warning Interfaces
+
+- **Visual Alert Displays**: Integration of multi-color LED status indicators or cab-mounted heads-up display units.
+- **Haptic Warning Feedback**: Seat or steering-wheel vibration mechanisms for tactile driver alerting.
+- **Vehicle System Integration**: Interfacing with existing vehicle alarm networks and audio consoles where appropriate.
+- **Multi-Tiered Warning Levels**: Graduated alert states (e.g., Advisory, Warning, Critical Hazard) based on evaluated risk severity.
+
+### 6. Future Development Roadmap
+
+| Stage | Focus | Potential Outcome |
+|---|---|---|
+| Current Prototype | Core sensing, communication, local processing, and warning | Prototype-level proof of concept |
+| Enhanced Prototype | Improved sensing, positioning, and communication robustness | Expanded testing capability |
+| Field Evaluation | Ruggedization and environment-specific testing | Assessment under representative operating conditions |
+| Future Deployment | Industrial integration and validation | Potential pathway toward a deployable system |
+
+> [!NOTE]
+> The development roadmap above represents potential future engineering directions and research possibilities, rather than guaranteed deployment milestones or commercial commitments.
+
+### Long-Term Vision
+
+Brainworks has the potential to evolve from a prototype-level awareness node into a comprehensive, scalable distributed safety-support architecture. In this vision, heterogeneous vehicles, heavy equipment, site infrastructure, and personnel nodes seamlessly exchange real-time awareness data while combining wireless cooperative communication with autonomous local sensing. Any transition toward real-world industrial deployment will require rigorous engineering validation, extensive site testing, and strict compliance with applicable mining safety standards and regulations.
+
