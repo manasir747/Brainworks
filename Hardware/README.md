@@ -452,4 +452,38 @@ Hardware/
 
 ## Bill of Materials
 
+The following components are used to construct a prototype-level Brainworks hardware node.
+
+| Component | Quantity per Node | Primary Purpose | Prototype Status |
+|---|---:|---|---|
+| ESP32 | 1 | Central processing and control | Core Processing |
+| LoRa SX1278 / Ra-02 | 1 | Long-range communication between Brainworks nodes | Communication |
+| NEO-6M GPS | 1 | Vehicle position awareness | Positioning |
+| 24 GHz mmWave Radar | 1 | Local obstacle sensing | Local Sensing |
+| Active Buzzer | 1 | Local audible warning | Warning Output |
+| Regulated Power Arrangement | 1 | Power distribution for prototype components | Power Integration |
+| Connecting Wires / Connectors | As required | Hardware interconnection | Interconnection |
+
+### Node-Level Hardware Summary
+
+One Brainworks prototype node integrates:
+
+- 1 processing unit
+- 1 communication module
+- 1 positioning module
+- 1 local sensing module
+- 1 warning mechanism
+- Required power and interconnection hardware
+
+### Scalability Consideration
+
+The system architecture is node-based, meaning additional participating vehicles, equipment, or fixed site assets can be equipped with additional Brainworks nodes using the same general hardware architecture.
+
+The exact component configuration may evolve depending on prototype testing, operational feedback, and future deployment requirements.
+
+### Cost Documentation
+
+> [!NOTE]
+> Component costs are dependent on the selected module versions, suppliers, quantities, and prototype configuration. A detailed cost analysis can be added after final component procurement and validation.
+
 ## Future Hardware Improvements
