@@ -289,6 +289,40 @@ The ESP32 microcontroller serves as the central processing unit of the Brainwork
 
 ## Power Architecture
 
+Reliable power distribution is essential for the Brainworks system because each hardware node integrates a central microcontroller, wireless communication hardware, positioning hardware, radar sensing, and a local warning mechanism.
+
+### Power Distribution Concept
+
+```mermaid
+flowchart TD
+    SOURCE["Power Source"] --> REG["Power Regulation / Distribution"]
+    REG --> ESP32["ESP32 Controller"]
+    REG --> LORA["LoRa SX1278 / Ra-02"]
+    REG --> GPS["NEO-6M GPS"]
+    REG --> RADAR["24 GHz mmWave Radar"]
+    REG --> BUZZER["Active Buzzer"]
+```
+
+### Power Design Considerations
+
+- **Module Voltage Requirements**: Each hardware module must receive power according to its verified operating requirements.
+- **Voltage Regulation**: A regulated power supply should be used where required to ensure stable voltage levels across peripherals.
+- **Common Ground Reference**: All interconnected modules must share a common ground reference to maintain signal integrity and proper operation.
+- **Pre-Assembly Validation**: Power requirements and power distribution paths should be validated before final prototype assembly.
+- **Operational Power Stability**: Communication and sensing modules should receive stable power during operation to prevent brownouts or reset conditions.
+- **GPIO Current Limits**: High-current peripherals or loads should not be powered directly from an ESP32 GPIO pin.
+- **Field Protection**: Final field deployment would require appropriate electrical protection and ruggedization against environmental factors.
+
+### Prototype vs Field Deployment
+
+| Aspect | Prototype Consideration | Future Field Deployment |
+|---|---|---|
+| Power Source | Suitable regulated prototype power | Industrial or vehicle-compatible power integration |
+| Voltage Regulation | Based on verified module requirements | Protected and regulated power architecture |
+| Electrical Protection | Basic prototype-level precautions | Surge, reverse-polarity, and transient protection as required |
+| Enclosure | Development setup | Ruggedized enclosure suitable for the operating environment |
+| Reliability | Prototype validation | Redundancy and industrial-grade validation where required |
+
 ## Collision Detection Logic
 
 ## Hardware Prototype
