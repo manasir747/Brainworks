@@ -1,6 +1,9 @@
 const { WebSocketServer, WebSocket } = require('ws');
 const logger = require('../utils/logger');
 const telemetryService = require('../services/telemetry.service');
+const zoneService = require('../services/zone.service');
+const { calculateRisk } = require('../services/risk.service');
+const alertService = require('../services/alert.service');
 
 const clients = new Set();
 
@@ -70,7 +73,45 @@ function toVehicleUpdateData(state) {
     speed: state.speed,
     heading: state.heading,
     visibility: state.visibility,
+    zoneId: state.zoneId || null,
   };
+}
+
+function toSafetyAlertData(alert) {
+  return {
+    alertId: alert.alertId,
+    vehicleId: alert.vehicleId,
+    severity: alert.severity,
+    riskScore: alert.riskScore,
+    type: alert.type,
+    message: alert.message,
+    factors: alert.factors || [],
+    zoneId: alert.zoneId || null,
+    status: alert.status,
+  };
+}
+
+function evaluateAlertsForVehicle(vehicle) {
+  try {
+    const nearbyVehicles = telemetryService.getAllVehicleStates();
+    const zone = zoneService.getVehicleZone(vehicle);
+    const riskResult = calculateRisk(vehicle, nearbyVehicles, zone);
+    const evaluation = alertService.evaluateRisk(vehicle, riskResult);
+
+    if (evaluation.created && evaluation.alert) {
+      broadcast('SAFETY_ALERT', toSafetyAlertData(evaluation.alert));
+    }
+
+    if (evaluation.resolved && evaluation.alert) {
+      broadcast('ALERT_RESOLVED', {
+        alertId: evaluation.alert.alertId,
+        vehicleId: evaluation.alert.vehicleId,
+        status: 'RESOLVED',
+      });
+    }
+  } catch (err) {
+    logger.error({ err }, 'Risk or alert evaluation failed');
+  }
 }
 
 function handleVehicleTelemetry(ws, data) {
@@ -82,6 +123,7 @@ function handleVehicleTelemetry(ws, data) {
       return;
     }
 
+    evaluateAlertsForVehicle(result.state);
     broadcast('VEHICLE_UPDATE', toVehicleUpdateData(result.state));
   } catch (err) {
     logger.error({ err }, 'Telemetry processing failed');

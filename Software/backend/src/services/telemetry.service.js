@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const logger = require('../utils/logger');
+const zoneService = require('./zone.service');
 
 const VEHICLES_PATH = path.join(__dirname, '../data/vehicles.json');
 const vehicleStates = new Map();
@@ -12,7 +13,7 @@ function initialize() {
   vehicleStates.clear();
 
   for (const vehicle of vehicles) {
-    vehicleStates.set(vehicle.id, { ...vehicle });
+    vehicleStates.set(vehicle.id, withDetectedZone({ ...vehicle }));
   }
 
   logger.info({ count: vehicleStates.size }, 'In-memory vehicle state initialized');
@@ -20,6 +21,22 @@ function initialize() {
 
 function cloneVehicle(vehicle) {
   return { ...vehicle };
+}
+
+function withDetectedZone(vehicle) {
+  try {
+    const zone = zoneService.getVehicleZone(vehicle);
+    return {
+      ...vehicle,
+      zoneId: zone ? zone.id : null,
+    };
+  } catch (err) {
+    logger.error({ err }, 'Zone detection failed');
+    return {
+      ...vehicle,
+      zoneId: null,
+    };
+  }
 }
 
 function processTelemetry(data) {
@@ -34,7 +51,7 @@ function processTelemetry(data) {
   }
 
   const lastUpdated = new Date().toISOString();
-  const updated = {
+  const updated = withDetectedZone({
     ...existing,
     latitude: data.latitude,
     longitude: data.longitude,
@@ -42,7 +59,7 @@ function processTelemetry(data) {
     heading: data.heading,
     visibility: data.visibility,
     lastUpdated,
-  };
+  });
 
   vehicleStates.set(vehicleId, updated);
 

@@ -3,18 +3,36 @@
     "id": "ZONE-01",
     "name": "Haul Road",
     "speedLimit": 30,
-    "visibilityThreshold": 50
+    "visibilityThreshold": 50,
+    "polygon": [
+      { "latitude": 18.5206, "longitude": 73.853 },
+      { "latitude": 18.5206, "longitude": 73.8588 },
+      { "latitude": 18.524, "longitude": 73.8588 },
+      { "latitude": 18.524, "longitude": 73.853 }
+    ]
   },
   {
     "id": "ZONE-02",
     "name": "Loading Zone",
     "speedLimit": 15,
-    "visibilityThreshold": 40
+    "visibilityThreshold": 40,
+    "polygon": [
+      { "latitude": 18.519, "longitude": 73.8524 },
+      { "latitude": 18.519, "longitude": 73.8542 },
+      { "latitude": 18.5203, "longitude": 73.8542 },
+      { "latitude": 18.5203, "longitude": 73.8524 }
+    ]
   },
   {
     "id": "ZONE-03",
     "name": "Excavation Zone",
     "speedLimit": 10,
-    "visibilityThreshold": 35
+    "visibilityThreshold": 35,
+    "polygon": [
+      { "latitude": 18.516, "longitude": 73.8508 },
+      { "latitude": 18.516, "longitude": 73.8528 },
+      { "latitude": 18.5178, "longitude": 73.8528 },
+      { "latitude": 18.5178, "longitude": 73.8508 }
+    ]
   }
 ]

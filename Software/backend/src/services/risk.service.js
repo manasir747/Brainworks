@@ -4,6 +4,7 @@ const RISK_WEIGHTS = {
   PROXIMITY: 0.25,
 };
 
+// Used only when Zone Service returns no zone. Not a guessed mine zone.
 const DEFAULT_SPEED_LIMIT = 30;
 
 const RISK_LEVELS = {
@@ -227,6 +228,8 @@ function calculateRisk(vehicle, nearbyVehicles, zone) {
   return {
     riskScore,
     riskLevel: toRiskLevel(riskScore),
+    zoneId: zone && zone.id ? zone.id : null,
+    speedLimit,
     factors: buildFactors(
       speedRisk,
       visibilityRisk,
