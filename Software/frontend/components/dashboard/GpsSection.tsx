@@ -1,4 +1,5 @@
 import type { GpsReading } from "@/lib/vehicle-data";
+import { TelemetryBlock } from "./TelemetryBlock";
 
 type GpsSectionProps = {
   gps: GpsReading;
@@ -6,14 +7,10 @@ type GpsSectionProps = {
 
 export function GpsSection({ gps }: GpsSectionProps) {
   return (
-    <section className="flex h-full w-full flex-col justify-center px-6 py-6 md:px-5 md:py-5 lg:px-8 lg:py-8 xl:px-10">
-      <p className="text-[10px] font-medium tracking-[0.24em] text-white/35 uppercase">
-        GPS
-      </p>
-
-      <div className="mt-4 flex items-center gap-4 md:mt-5 md:gap-3 lg:mt-6 lg:gap-6">
+    <TelemetryBlock title="GPS">
+      <div className="flex items-center gap-4 md:gap-3 lg:gap-5">
         <div
-          className="relative hidden size-14 shrink-0 border border-white/15 sm:block md:size-10 lg:size-14"
+          className="relative size-12 shrink-0 border border-white/15 md:size-10 lg:size-12"
           aria-hidden
         >
           <span className="absolute inset-x-0 top-1/2 h-px -translate-y-px bg-white/15" />
@@ -21,7 +18,7 @@ export function GpsSection({ gps }: GpsSectionProps) {
           <span className="absolute top-[38%] left-[58%] size-1.5 bg-[#c4a574]" />
         </div>
 
-        <dl className="grid min-w-0 gap-2.5 font-mono text-sm md:gap-2">
+        <dl className="grid min-w-0 gap-2.5 font-mono">
           <div>
             <dt className="text-[10px] tracking-[0.16em] text-white/30 uppercase">
               Latitude
@@ -40,6 +37,6 @@ export function GpsSection({ gps }: GpsSectionProps) {
           </div>
         </dl>
       </div>
-    </section>
+    </TelemetryBlock>
   );
 }
