@@ -170,7 +170,27 @@ function toRiskLevel(riskScore) {
   return RISK_LEVELS.LOW.label;
 }
 
-function buildFactors(speedRisk, visibilityRisk, proximityRisk, speed, speedLimit, visibility, closestDistance) {
+function calculateObstacleRisk(obstacle) {
+  if (!obstacle || !obstacle.obstacleDetected) {
+    return 0;
+  }
+
+  if (obstacle.severity === 'CRITICAL') {
+    return 55;
+  }
+
+  if (obstacle.severity === 'WARNING') {
+    return 25;
+  }
+
+  if (obstacle.severity === 'DETECTED') {
+    return 10;
+  }
+
+  return 0;
+}
+
+function buildFactors(speedRisk, visibilityRisk, proximityRisk, obstacleRisk, speed, speedLimit, visibility, closestDistance, obstacle) {
   const factors = [];
 
   if (speedRisk > 0) {
@@ -201,10 +221,20 @@ function buildFactors(speedRisk, visibilityRisk, proximityRisk, speed, speedLimi
     });
   }
 
+  if (obstacleRisk > 0) {
+    factors.push({
+      type: 'OBSTACLE_RISK',
+      value: obstacle && obstacle.distance != null ? Number(obstacle.distance) : obstacleRisk,
+      message: obstacle && obstacle.severity === 'CRITICAL'
+        ? 'Immediate collision risk from a nearby obstacle'
+        : 'Obstacle detected ahead of the vehicle',
+    });
+  }
+
   return factors;
 }
 
-function calculateRisk(vehicle, nearbyVehicles, zone) {
+function calculateRisk(vehicle, nearbyVehicles, zone, obstacle) {
   const current = vehicle || {};
   const speedLimit = getSpeedLimit(zone);
   const speed = Number(current.speed) || 0;
@@ -214,12 +244,14 @@ function calculateRisk(vehicle, nearbyVehicles, zone) {
   const speedRisk = calculateSpeedRisk(speed, speedLimit);
   const visibilityRisk = calculateVisibilityRisk(visibility);
   const proximityRisk = calculateProximityRisk(closestDistance);
+  const obstacleRisk = calculateObstacleRisk(obstacle);
 
   const riskScore = clamp(
     Math.round(
       speedRisk * RISK_WEIGHTS.SPEED +
         visibilityRisk * RISK_WEIGHTS.VISIBILITY +
-        proximityRisk * RISK_WEIGHTS.PROXIMITY
+        proximityRisk * RISK_WEIGHTS.PROXIMITY +
+        obstacleRisk
     ),
     0,
     100
@@ -234,10 +266,12 @@ function calculateRisk(vehicle, nearbyVehicles, zone) {
       speedRisk,
       visibilityRisk,
       proximityRisk,
+      obstacleRisk,
       speed,
       speedLimit,
       visibility,
-      closestDistance
+      closestDistance,
+      obstacle
     ),
   };
 }

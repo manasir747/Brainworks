@@ -33,7 +33,24 @@ function getZoneById(req, res, next) {
 
 function getZoneByLocation(req, res, next) {
   try {
-    const zone = zoneService.getZoneForLocation(req.query.latitude, req.query.longitude);
+    const latitude = req.query.latitude;
+    const longitude = req.query.longitude;
+
+    if (
+      latitude === undefined ||
+      longitude === undefined ||
+      latitude === '' ||
+      longitude === '' ||
+      !Number.isFinite(Number(latitude)) ||
+      !Number.isFinite(Number(longitude))
+    ) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid coordinates',
+      });
+    }
+
+    const zone = zoneService.getZoneForLocation(latitude, longitude);
 
     if (!zone) {
       return res.status(404).json({

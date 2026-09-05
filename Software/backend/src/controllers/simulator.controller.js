@@ -53,9 +53,30 @@ function setMode(req, res, next) {
   }
 }
 
+function setObstacleMode(req, res, next) {
+  try {
+    const result = simulator.setObstacleMode(req.body && req.body.mode);
+
+    if (!result.ok) {
+      return res.status(400).json({
+        success: false,
+        error: result.error,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: result.status,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   getStatus,
   start,
   stop,
   setMode,
+  setObstacleMode,
 };

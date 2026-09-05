@@ -1,7 +1,7 @@
 const logger = require('../utils/logger');
 const config = require('../config/env');
 const telemetryService = require('./telemetry.service');
-const { ingestTelemetry } = require('../websocket/websocket.server');
+const { ingestTelemetry, ingestObstacleTelemetry } = require('../websocket/websocket.server');
 
 const MODES = {
   NORMAL: 'NORMAL',
@@ -43,8 +43,21 @@ const NUDGE = {
   heading: 8,
 };
 
+const OBSTACLE_MODES = {
+  NO_OBSTACLE: 'NO_OBSTACLE',
+  OBSTACLE: 'OBSTACLE',
+  APPROACHING: 'APPROACHING',
+  CLEAR: 'CLEAR',
+};
+
+const APPROACHING_DISTANCES = [10, 8, 6, 4, 2, 1];
+const DEMO_VEHICLE_ID = 'TRUCK-01';
+const DEMO_OBSTACLE_TYPE = 'ROCK';
+
 const fleet = [];
 let mode = MODES.NORMAL;
+let obstacleMode = OBSTACLE_MODES.NO_OBSTACLE;
+let approachingIndex = 0;
 let timer = null;
 let intervalMs = config.simulatorIntervalMs;
 
@@ -173,6 +186,40 @@ function emitVehicle(vehicle) {
   });
 }
 
+function emitObstacle(distance) {
+  ingestObstacleTelemetry({
+    vehicleId: DEMO_VEHICLE_ID,
+    distance,
+    obstacleType: DEMO_OBSTACLE_TYPE,
+  });
+}
+
+function applyObstacleMode() {
+  if (obstacleMode === OBSTACLE_MODES.NO_OBSTACLE) {
+    return;
+  }
+
+  if (obstacleMode === OBSTACLE_MODES.OBSTACLE) {
+    emitObstacle(10);
+    return;
+  }
+
+  if (obstacleMode === OBSTACLE_MODES.APPROACHING) {
+    const distance = APPROACHING_DISTANCES[Math.min(approachingIndex, APPROACHING_DISTANCES.length - 1)];
+    emitObstacle(distance);
+    if (approachingIndex < APPROACHING_DISTANCES.length - 1) {
+      approachingIndex += 1;
+    }
+    return;
+  }
+
+  if (obstacleMode === OBSTACLE_MODES.CLEAR) {
+    emitObstacle(12);
+    obstacleMode = OBSTACLE_MODES.NO_OBSTACLE;
+    approachingIndex = 0;
+  }
+}
+
 function tick() {
   try {
     ensureFleet();
@@ -181,6 +228,8 @@ function tick() {
       applyMode(vehicle, intervalMs);
       emitVehicle(vehicle);
     }
+
+    applyObstacleMode();
   } catch (err) {
     logger.error({ err }, 'Simulator tick failed');
   }
@@ -191,6 +240,7 @@ function getSimulatorStatus() {
     enabled: config.simulatorEnabled,
     running: Boolean(timer),
     mode,
+    obstacleMode,
     intervalMs,
   };
 }
@@ -249,10 +299,47 @@ function setSimulationMode(nextMode) {
   };
 }
 
+function setObstacleMode(nextMode) {
+  const normalized = String(nextMode || '').toUpperCase();
+
+  if (!OBSTACLE_MODES[normalized]) {
+    return {
+      ok: false,
+      error: 'Unsupported obstacle mode',
+      status: getSimulatorStatus(),
+    };
+  }
+
+  obstacleMode = normalized;
+
+  if (obstacleMode === OBSTACLE_MODES.APPROACHING) {
+    approachingIndex = 0;
+  }
+
+  if (obstacleMode === OBSTACLE_MODES.NO_OBSTACLE) {
+    approachingIndex = 0;
+  }
+
+  logger.info({ obstacleMode }, 'Obstacle simulation mode changed');
+
+  try {
+    applyObstacleMode();
+  } catch (err) {
+    logger.error({ err }, 'Failed to apply obstacle simulation mode');
+  }
+
+  return {
+    ok: true,
+    status: getSimulatorStatus(),
+  };
+}
+
 module.exports = {
   startSimulator,
   stopSimulator,
   getSimulatorStatus,
   setSimulationMode,
+  setObstacleMode,
   MODES,
+  OBSTACLE_MODES,
 };

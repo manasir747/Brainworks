@@ -4,6 +4,7 @@ const telemetryService = require('../services/telemetry.service');
 const zoneService = require('../services/zone.service');
 const { calculateRisk } = require('../services/risk.service');
 const alertService = require('../services/alert.service');
+const obstacleService = require('../services/obstacle.service');
 
 const clients = new Set();
 
@@ -96,7 +97,8 @@ function evaluateAlertsForVehicle(vehicle) {
   try {
     const nearbyVehicles = telemetryService.getAllVehicleStates();
     const zone = zoneService.getVehicleZone(vehicle);
-    const riskResult = calculateRisk(vehicle, nearbyVehicles, zone);
+    const obstacle = obstacleService.getObstacleState(vehicle.id);
+    const riskResult = calculateRisk(vehicle, nearbyVehicles, zone, obstacle);
     const evaluation = alertService.evaluateRisk(vehicle, riskResult);
 
     if (evaluation.created && evaluation.alert) {
@@ -138,6 +140,36 @@ function ingestTelemetry(data) {
   return handleVehicleTelemetry(null, data);
 }
 
+function handleObstacleTelemetry(ws, data) {
+  try {
+    const result = obstacleService.processObstacleTelemetry(data || {});
+
+    if (!result.ok) {
+      sendTo(ws, 'ERROR', { message: result.error || 'Invalid obstacle data' });
+      return result;
+    }
+
+    if (result.event) {
+      broadcast(result.event, result.data || {});
+    }
+
+    const vehicle = telemetryService.getVehicleState(data && data.vehicleId);
+    if (vehicle) {
+      evaluateAlertsForVehicle(vehicle);
+    }
+
+    return result;
+  } catch (err) {
+    logger.error({ err }, 'Obstacle telemetry processing failed');
+    sendTo(ws, 'ERROR', { message: 'Obstacle processing failed' });
+    return { ok: false, error: 'Obstacle processing failed' };
+  }
+}
+
+function ingestObstacleTelemetry(data) {
+  return handleObstacleTelemetry(null, data);
+}
+
 function handleIncomingMessage(ws, raw) {
   let parsed;
 
@@ -160,6 +192,11 @@ function handleIncomingMessage(ws, raw) {
 
   if (parsed.type === 'VEHICLE_TELEMETRY') {
     handleVehicleTelemetry(ws, parsed.data);
+    return;
+  }
+
+  if (parsed.type === 'OBSTACLE_TELEMETRY') {
+    handleObstacleTelemetry(ws, parsed.data);
     return;
   }
 
@@ -221,4 +258,5 @@ module.exports = {
   broadcast,
   getConnectedClientCount,
   ingestTelemetry,
+  ingestObstacleTelemetry,
 };

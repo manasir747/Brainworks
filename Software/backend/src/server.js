@@ -37,6 +37,10 @@ const httpServer = http.createServer(app);
 
 attachWebSocket(httpServer);
 
+httpServer.on('error', (err) => {
+  logger.error({ err }, 'HTTP server error');
+});
+
 httpServer.listen(config.port, () => {
   logger.info({ port: config.port, env: config.nodeEnv }, 'HTTP server started');
 

@@ -39,6 +39,11 @@ function withDetectedZone(vehicle) {
   }
 }
 
+function toFiniteNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
 function processTelemetry(data) {
   const vehicleId = data && data.vehicleId;
   const existing = vehicleId ? vehicleStates.get(vehicleId) : null;
@@ -50,14 +55,33 @@ function processTelemetry(data) {
     };
   }
 
+  const latitude = toFiniteNumber(data.latitude);
+  const longitude = toFiniteNumber(data.longitude);
+  const speed = toFiniteNumber(data.speed);
+  const heading = toFiniteNumber(data.heading);
+  const visibility = toFiniteNumber(data.visibility);
+
+  if (
+    latitude === null ||
+    longitude === null ||
+    speed === null ||
+    heading === null ||
+    visibility === null
+  ) {
+    return {
+      ok: false,
+      error: 'Invalid telemetry data',
+    };
+  }
+
   const lastUpdated = new Date().toISOString();
   const updated = withDetectedZone({
     ...existing,
-    latitude: data.latitude,
-    longitude: data.longitude,
-    speed: data.speed,
-    heading: data.heading,
-    visibility: data.visibility,
+    latitude,
+    longitude,
+    speed,
+    heading,
+    visibility,
     lastUpdated,
   });
 

@@ -7,8 +7,10 @@ const ALERT_MESSAGES = {
   LOW_VISIBILITY: 'Visibility is dangerously low',
   PROXIMITY: 'Vehicle is dangerously close to another vehicle',
   COMBINED_RISK: 'Multiple safety risks detected',
+  OBSTACLE_RISK: 'Immediate collision risk from a nearby obstacle',
 };
 
+const MAX_ALERT_HISTORY = 200;
 const activeByVehicle = new Map();
 const alertHistory = [];
 let alertSequence = 0;
@@ -28,7 +30,7 @@ function cloneAlert(alert) {
 function deriveAlertType(factors) {
   const types = (factors || [])
     .map((factor) => factor && factor.type)
-    .filter((type) => type === 'OVERSPEED' || type === 'LOW_VISIBILITY' || type === 'PROXIMITY');
+    .filter((type) => type === 'OVERSPEED' || type === 'LOW_VISIBILITY' || type === 'PROXIMITY' || type === 'OBSTACLE_RISK');
 
   if (types.length > 1) {
     return 'COMBINED_RISK';
@@ -68,6 +70,10 @@ function createAlert(vehicleId, riskResult) {
 
   activeByVehicle.set(vehicleId, alert);
   alertHistory.push(alert);
+
+  if (alertHistory.length > MAX_ALERT_HISTORY) {
+    alertHistory.splice(0, alertHistory.length - MAX_ALERT_HISTORY);
+  }
 
   logger.info({ alertId: alert.alertId, vehicleId, type, severity: alert.severity }, 'Safety alert created');
 
