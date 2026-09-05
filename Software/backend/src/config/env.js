@@ -5,10 +5,11 @@ require('dotenv').config({
 });
 
 const config = {
-  port: Number(process.env.PORT) || 3000,
+  port: Number(process.env.PORT) || 5001,
   nodeEnv: process.env.NODE_ENV || 'development',
   simulatorEnabled: process.env.SIMULATOR_ENABLED === 'true',
   simulatorIntervalMs: Number(process.env.SIMULATOR_INTERVAL_MS) || 1000,
+  corsOrigin: process.env.CORS_ORIGIN || '*',
 };
 
 module.exports = config;

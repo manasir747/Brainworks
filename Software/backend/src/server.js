@@ -17,7 +17,12 @@ const simulator = require('./services/telemetry.simulator');
 const app = express();
 
 app.use(helmet());
-app.use(cors());
+app.use(
+  cors({
+    origin: config.corsOrigin === '*' ? true : config.corsOrigin.split(',').map((o) => o.trim()),
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.use('/api', healthRoutes);
