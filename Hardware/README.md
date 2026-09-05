@@ -240,6 +240,53 @@ flowchart TD
 
 ## Pin Connections
 
+The ESP32 microcontroller serves as the central processing unit of the Brainworks hardware node, interfacing with communication, positioning, local sensing, and alerting peripheral modules.
+
+### LoRa SX1278 / Ra-02 Connections
+
+| LoRa Pin | ESP32 Pin | Purpose |
+|---|---|---|
+| VCC | To be verified from prototype wiring | Power |
+| GND | To be verified from prototype wiring | Ground |
+| SCK | To be verified from prototype wiring | SPI Clock |
+| MISO | To be verified from prototype wiring | SPI Data Output |
+| MOSI | To be verified from prototype wiring | SPI Data Input |
+| NSS / CS | To be verified from prototype wiring | SPI Chip Select |
+| RST | To be verified from prototype wiring | Reset |
+| DIO0 | To be verified from prototype wiring | Interrupt |
+
+### NEO-6M GPS Connections
+
+| GPS Pin | ESP32 Pin | Purpose |
+|---|---|---|
+| VCC | To be verified from prototype wiring | Power |
+| GND | To be verified from prototype wiring | Ground |
+| TX | To be verified from prototype wiring | UART Transmit (to ESP32 RX) |
+| RX | To be verified from prototype wiring | UART Receive (from ESP32 TX) |
+
+### 24 GHz mmWave Radar Connections
+
+| Radar Pin | ESP32 Pin | Purpose |
+|---|---|---|
+| VCC | To be verified from prototype wiring | Power |
+| GND | To be verified from prototype wiring | Ground |
+| OUT / TX | To be verified from prototype wiring | Signal / Data Output |
+
+### Active Buzzer Connection
+
+| Buzzer Pin | ESP32 Pin | Purpose |
+|---|---|---|
+| VCC / Signal | To be verified from prototype wiring | Alert Control / Drive Signal |
+| GND | To be verified from prototype wiring | Ground |
+
+### Wiring Notes
+
+- Ensure all interconnected modules share a common ground reference across the entire system.
+- Verify the required operating voltage of each module before connecting it to the power supply.
+- Do not assume all modules use the same logic or supply voltage levels.
+- GPIO pins should only be used according to the electrical specifications and current limits of the connected module.
+- **High-Current Loads**: High-current loads should not be powered directly from an ESP32 GPIO pin.
+
 ## Power Architecture
 
 ## Collision Detection Logic
