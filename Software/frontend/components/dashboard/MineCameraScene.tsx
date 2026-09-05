@@ -7,51 +7,52 @@ export function MineCameraScene() {
       aria-hidden
     >
       <defs>
-        <linearGradient id="horizon" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#8a9098" />
-          <stop offset="38%" stopColor="#6a717a" />
-          <stop offset="62%" stopColor="#4d545c" />
-          <stop offset="100%" stopColor="#2c3036" />
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#7d858e" />
+          <stop offset="28%" stopColor="#6a727b" />
+          <stop offset="55%" stopColor="#585f67" />
+          <stop offset="100%" stopColor="#3e444b" />
         </linearGradient>
-        <linearGradient id="pit" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#5c534a" />
-          <stop offset="100%" stopColor="#2a2723" />
+        <linearGradient id="bench" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#6a5f52" />
+          <stop offset="100%" stopColor="#3a342c" />
         </linearGradient>
-        <linearGradient id="haul" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#6e675e" />
-          <stop offset="100%" stopColor="#3a372f" />
+        <linearGradient id="road" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#7a7368" />
+          <stop offset="100%" stopColor="#4a453c" />
         </linearGradient>
-        <radialGradient id="fog" cx="50%" cy="42%" r="62%">
-          <stop offset="0%" stopColor="#d5d8dc" stopOpacity="0.55" />
-          <stop offset="45%" stopColor="#9aa1a8" stopOpacity="0.28" />
-          <stop offset="100%" stopColor="#1a1c20" stopOpacity="0.08" />
+        <radialGradient id="mist" cx="50%" cy="40%" r="70%">
+          <stop offset="0%" stopColor="#e4e7ea" stopOpacity="0.62" />
+          <stop offset="40%" stopColor="#b7bdc4" stopOpacity="0.32" />
+          <stop offset="100%" stopColor="#1c1f24" stopOpacity="0.05" />
         </radialGradient>
-        <radialGradient id="beam" cx="50%" cy="100%" r="58%">
-          <stop offset="0%" stopColor="#f0ead8" stopOpacity="0.22" />
-          <stop offset="55%" stopColor="#cfc6b0" stopOpacity="0.06" />
+        <radialGradient id="headlight" cx="50%" cy="108%" r="62%">
+          <stop offset="0%" stopColor="#efe6cc" stopOpacity="0.28" />
+          <stop offset="42%" stopColor="#cfc6ae" stopOpacity="0.08" />
           <stop offset="100%" stopColor="#000" stopOpacity="0" />
         </radialGradient>
       </defs>
 
-      <rect width="1600" height="900" fill="url(#horizon)" />
-      <ellipse cx="800" cy="390" rx="720" ry="160" fill="#9aa3ad" opacity="0.35" />
+      <rect width="1600" height="900" fill="url(#sky)" />
 
-      <path d="M0 430 L420 410 L540 470 L0 620 Z" fill="url(#pit)" />
-      <path d="M1600 430 L1180 410 L1060 470 L1600 620 Z" fill="url(#pit)" />
+      <path d="M0 390 L260 360 L390 430 L180 470 L0 500 Z" fill="url(#bench)" />
+      <path d="M1600 390 L1340 360 L1210 430 L1420 470 L1600 500 Z" fill="url(#bench)" />
+      <path d="M0 500 L210 455 L480 520 L0 640 Z" fill="#4d463d" />
+      <path d="M1600 500 L1390 455 L1120 520 L1600 640 Z" fill="#4d463d" />
 
-      <path d="M180 900 L700 455 L900 455 L1420 900 Z" fill="url(#haul)" />
+      <path d="M210 900 L690 448 L910 448 L1390 900 Z" fill="url(#road)" />
       <path
-        d="M800 455 L792 900 M800 455 L808 900"
-        stroke="#c5c0b4"
-        strokeWidth="2"
-        strokeDasharray="18 22"
-        opacity="0.35"
+        d="M800 450 L794 900"
+        stroke="#d2cdc2"
+        strokeWidth="3"
+        strokeDasharray="16 26"
+        opacity="0.28"
       />
 
-      <ellipse cx="800" cy="448" rx="90" ry="16" fill="#b7bcc2" opacity="0.5" />
-      <rect x="0" y="0" width="1600" height="900" fill="url(#fog)" />
-      <rect x="0" y="0" width="1600" height="900" fill="url(#beam)" />
-      <rect x="0" y="760" width="1600" height="140" fill="#121417" opacity="0.55" />
+      <ellipse cx="800" cy="442" rx="118" ry="18" fill="#c5cbd2" opacity="0.45" />
+      <rect x="0" y="0" width="1600" height="900" fill="url(#mist)" />
+      <rect x="0" y="0" width="1600" height="900" fill="url(#headlight)" />
+      <rect x="0" y="780" width="1600" height="120" fill="#101214" opacity="0.5" />
     </svg>
   );
 }
