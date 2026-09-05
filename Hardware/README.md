@@ -59,6 +59,33 @@ The power system ensures stable electrical operation across all hardware compone
 
 ## System Architecture
 
+Brainworks utilizes a distributed hardware architecture where each vehicle node functions as an autonomous unit capable of local sensing, long-range vehicle-to-vehicle (V2V) communication, real-time data processing, and local hazard warning generation.
+
+```mermaid
+flowchart TD
+    GPS["NEO-6M GPS"] -->|Vehicle Position Data| ESP32["ESP32 Controller"]
+    RADAR["24 GHz mmWave Radar"] -->|Local Obstacle Data| ESP32
+    
+    ESP32 <-->|Tx / Rx Telemetry| LORA["LoRa SX1278 / Ra-02"]
+    LORA <-->|V2V Wireless Link| PEERS["Nearby Brainworks Vehicles"]
+    
+    ESP32 --> FUSION["Sensor & Data Fusion"]
+    FUSION --> RISK["Collision Risk Assessment"]
+    
+    RISK -->|Safe Condition| SAFE["Continue Monitoring"]
+    RISK -->|Risk Detected| ALERT["Activate Active Buzzer"]
+    ALERT --> DRIVER["Driver / Operator Warning"]
+```
+
+### Architecture Explanation
+
+1. **Position Acquisition**: The NEO-6M GPS module continuously acquires geographic coordinates and movement data for the vehicle.
+2. **Vehicle-to-Vehicle Communication**: The ESP32 formats and transmits local position data via the LoRa SX1278 / Ra-02 module while simultaneously receiving position broadcasts from nearby Brainworks-equipped vehicles.
+3. **Local Obstacle Awareness**: The 24 GHz mmWave radar actively scans the vehicle's immediate surroundings to detect non-cooperative obstacles or unequipped objects that do not transmit location data.
+4. **Data Aggregation**: The central ESP32 controller collects all three data streams: local GPS position, incoming LoRa V2V telemetry, and mmWave radar detection signals.
+5. **Sensor Fusion & Risk Assessment**: The aggregated data is processed through a Sensor & Data Fusion stage, where it is evaluated by a Collision Risk Assessment algorithm to determine potential collision threats.
+6. **Alert Generation**: If a hazardous condition or imminent collision risk is identified, the system activates the active buzzer to provide an immediate audible warning to the driver/operator; otherwise, it continues routine monitoring.
+
 ## Communication Flow
 
 ## Sensor Fusion Strategy
