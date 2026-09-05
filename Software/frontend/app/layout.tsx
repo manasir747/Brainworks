@@ -16,6 +16,13 @@ export const metadata: Metadata = {
   title: "BRAINWORKS | Mine Vehicle Dashboard",
   description:
     "SIH26007 — Safe and efficient operation of mine vehicles in fog and low-visibility conditions.",
+  icons: {
+    icon: [
+      { url: "/icon.png", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: "/apple-icon.png",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

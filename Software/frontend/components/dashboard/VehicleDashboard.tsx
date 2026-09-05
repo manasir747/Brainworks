@@ -1,4 +1,5 @@
 import type { VehicleTelemetry } from "@/lib/vehicle-data";
+import Image from "next/image";
 import { CameraFeedView } from "./CameraFeedView";
 import { GpsSection } from "./GpsSection";
 import { ObstacleSection } from "./ObstacleSection";
@@ -11,10 +12,17 @@ type VehicleDashboardProps = {
 export function VehicleDashboard({ telemetry }: VehicleDashboardProps) {
   return (
     <div className="flex h-dvh min-h-dvh flex-1 flex-col overflow-hidden bg-[#07080a] text-[#e7e4de]">
-      <header className="flex shrink-0 items-center justify-between px-5 py-3.5 md:px-7 lg:px-8">
-        <p className="text-[11px] font-medium tracking-[0.32em] text-white/70 uppercase">
-          Brainworks
-        </p>
+      <header className="flex shrink-0 items-center justify-between px-5 py-3 md:px-7 lg:px-8">
+        <div className="flex items-center">
+          <Image
+            src="/logo.png"
+            alt="Brainworks"
+            width={994}
+            height={106}
+            className="h-5.5 w-auto object-contain"
+            priority
+          />
+        </div>
         <p className="font-mono text-[11px] tracking-[0.18em] text-white/30">
           SIH26007
         </p>
