@@ -1,20 +1,11 @@
-const fs = require('fs');
-const path = require('path');
-
-const VEHICLES_PATH = path.join(__dirname, '../data/vehicles.json');
-
-function readVehicles() {
-  const raw = fs.readFileSync(VEHICLES_PATH, 'utf8');
-  return JSON.parse(raw);
-}
+const telemetryService = require('./telemetry.service');
 
 function getAllVehicles() {
-  return readVehicles();
+  return telemetryService.getAllVehicleStates();
 }
 
 function getVehicleById(id) {
-  const vehicles = readVehicles();
-  return vehicles.find((vehicle) => vehicle.id === id) || null;
+  return telemetryService.getVehicleState(id);
 }
 
 module.exports = {

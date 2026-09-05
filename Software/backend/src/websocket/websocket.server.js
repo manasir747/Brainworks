@@ -1,5 +1,6 @@
 const { WebSocketServer, WebSocket } = require('ws');
 const logger = require('../utils/logger');
+const telemetryService = require('../services/telemetry.service');
 
 const clients = new Set();
 
@@ -60,6 +61,34 @@ function getConnectedClientCount() {
   return clients.size;
 }
 
+function toVehicleUpdateData(state) {
+  return {
+    vehicleId: state.id,
+    vehicleType: state.type,
+    latitude: state.latitude,
+    longitude: state.longitude,
+    speed: state.speed,
+    heading: state.heading,
+    visibility: state.visibility,
+  };
+}
+
+function handleVehicleTelemetry(ws, data) {
+  try {
+    const result = telemetryService.processTelemetry(data || {});
+
+    if (!result.ok) {
+      sendTo(ws, 'ERROR', { message: result.error || 'Unknown vehicle' });
+      return;
+    }
+
+    broadcast('VEHICLE_UPDATE', toVehicleUpdateData(result.state));
+  } catch (err) {
+    logger.error({ err }, 'Telemetry processing failed');
+    sendTo(ws, 'ERROR', { message: 'Telemetry processing failed' });
+  }
+}
+
 function handleIncomingMessage(ws, raw) {
   let parsed;
 
@@ -70,10 +99,22 @@ function handleIncomingMessage(ws, raw) {
     return;
   }
 
-  if (parsed && parsed.type === 'PING') {
+  if (!parsed || typeof parsed.type !== 'string') {
+    sendTo(ws, 'ERROR', { message: 'Invalid JSON message' });
+    return;
+  }
+
+  if (parsed.type === 'PING') {
     sendTo(ws, 'SYSTEM_STATUS', { status: 'pong' });
     return;
   }
+
+  if (parsed.type === 'VEHICLE_TELEMETRY') {
+    handleVehicleTelemetry(ws, parsed.data);
+    return;
+  }
+
+  logger.debug({ type: parsed.type }, 'Ignored unknown WebSocket message type');
 }
 
 function attachWebSocket(httpServer) {
@@ -98,7 +139,12 @@ function attachWebSocket(httpServer) {
     });
 
     ws.on('message', (raw) => {
-      handleIncomingMessage(ws, raw);
+      try {
+        handleIncomingMessage(ws, raw);
+      } catch (err) {
+        logger.error({ err }, 'Unhandled WebSocket message error');
+        sendTo(ws, 'ERROR', { message: 'Message handling failed' });
+      }
     });
 
     ws.on('close', () => {
