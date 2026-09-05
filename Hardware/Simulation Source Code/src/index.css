@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #0a0a0a;
+  --color-surface: #171717;
+  --color-surface-lighter: #262626;
+  --color-primary: #3b82f6;
+  --color-success: #22c55e;
+  --color-caution: #eab308;
+  --color-warning: #f97316;
+  --color-critical: #ef4444;
+}
+
+@layer base {
+  body {
+    @apply bg-[#0a0a0a] text-gray-100 overflow-hidden select-none font-sans m-0 p-0;
+  }
+}
+
+.radar-pulse {
+  animation: radarPulse 2s cubic-bezier(0.1, 0.7, 1, 0.1) infinite;
+}
+
+@keyframes radarPulse {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
