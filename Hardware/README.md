@@ -460,6 +460,114 @@ Hardware/
     └── complete-node.jpg
 ```
 
+## Wokwi Hardware Simulation
+
+The Wokwi simulation provides a functional demonstration of the proposed Brainworks node logic. Since some of the proposed hardware modules are not directly available or practical to simulate in Wokwi, equivalent simulated inputs are used to validate the information flow and local warning behavior.
+
+![Brainworks Wokwi Hardware Simulation](images/06-wokwi-simulation.png)
+
+> [!NOTE]
+> This simulation is a conceptual functional demonstration. It is not a physically validated hardware prototype, and it does not replace the proposed LoRa, GPS, or mmWave radar hardware components.
+
+### Simulation Architecture
+
+The Wokwi simulation models two conceptual input paths into the ESP32 local processing logic:
+
+```mermaid
+flowchart TD
+    subgraph OBSTACLE["Obstacle Input Path"]
+        HC["HC-SR04 Ultrasonic Sensor\n(Simulates obstacle proximity)"]
+    end
+
+    subgraph V2V["Simulated V2V Input Path"]
+        BTN["Pushbutton — V2V Alert\n(Simulates incoming nearby node alert)"]
+    end
+
+    ESP32["ESP32\nLocal Processing"]
+    LOGIC["Risk / Warning Logic"]
+    GREEN["Green LED\n(Normal / Monitoring)"]
+    RED["Red LED\n(Warning Condition)"]
+    BUZ["Buzzer\n(Local Warning Output)"]
+
+    HC --> ESP32
+    BTN --> ESP32
+    ESP32 --> LOGIC
+    LOGIC -->|"No Risk"| GREEN
+    LOGIC -->|"Risk Detected"| RED
+    LOGIC -->|"Risk Detected"| BUZ
+```
+
+### Component Mapping
+
+| Proposed Brainworks Component | Wokwi Simulation Equivalent |
+|---|---|
+| ESP32 | ESP32 |
+| NEO-6M GPS | Simulated position data in software |
+| 24 GHz mmWave Radar | HC-SR04 ultrasonic sensor for obstacle-distance simulation |
+| LoRa SX1278 / Ra-02 | Pushbutton-based simulated V2V alert |
+| Active Buzzer | Wokwi buzzer |
+| System Status Indication | Green LED (normal) and Red LED (warning) |
+
+> [!IMPORTANT]
+> The HC-SR04 and the pushbutton are functional simulation substitutes used to demonstrate the proposed information flow. They are not the hardware components specified in the Brainworks proposed hardware architecture.
+
+### Demonstrated Scenarios
+
+#### 1. Normal Monitoring
+
+When no nearby obstacle is detected and no simulated V2V alert is active:
+
+- **Green LED**: ON — indicates normal monitoring condition
+- **Red LED**: OFF
+- **Buzzer**: OFF
+- System remains in continuous monitoring mode
+
+#### 2. Local Obstacle Warning
+
+When the HC-SR04 ultrasonic sensor returns a simulated distance below the configured warning threshold:
+
+- The ESP32 receives the obstacle-proximity input from the HC-SR04
+- Local warning logic evaluates the measured distance against the configured threshold
+- **Red LED** activates to indicate a warning condition
+- **Buzzer** activates to produce a local audible warning
+
+> [!NOTE]
+> The HC-SR04 is used exclusively as a simulation substitute for the proposed 24 GHz mmWave radar. The actual Brainworks hardware architecture specifies a 24 GHz mmWave radar for local obstacle sensing. Range characteristics, detection capability, and operating behavior will differ between simulation and the proposed physical implementation.
+
+#### 3. Simulated Nearby Node Alert
+
+When the "V2V Alert" pushbutton is activated:
+
+- The button input represents a simulated incoming awareness alert from a nearby Brainworks node
+- The ESP32 processes the simulated awareness signal
+- Warning logic evaluates the condition
+- Local warning outputs may activate in response
+
+> [!NOTE]
+> The pushbutton simulates the logical role of the proposed LoRa communication layer. It is not actual LoRa communication. Real V2V awareness data exchange between Brainworks nodes through LoRa SX1278 / Ra-02 is a proposed future capability that requires physical hardware prototype development and radio communication validation.
+
+### Simulation Scope and Limitations
+
+This Wokwi simulation demonstrates the proposed Brainworks information flow and local warning logic. It is not a replacement for physical hardware validation. Actual LoRa communication, NEO-6M GPS integration, 24 GHz mmWave radar sensing, electrical validation, range testing, reliability testing, and environment-specific performance evaluation remain part of future prototype development.
+
+The purpose of the simulation is to provide a conceptual functional demonstration of the proposed node logic and decision flow for evaluation and presentation purposes.
+
+### Implementation Status
+
+| Feature | Status |
+|---|---|
+| ESP32 Processing Logic | Simulated |
+| Obstacle Input | Simulated using HC-SR04 |
+| Nearby Node Alert | Simulated using Pushbutton |
+| Local Warning Output | Simulated |
+| GPS Integration | Simulated in Software |
+| LoRa Communication | Proposed |
+| 24 GHz mmWave Radar | Proposed |
+| Physical Prototype | Future Development |
+| Real-World Validation | Future Development |
+
+---
+
 ## Bill of Materials
 
 The following components are used to construct a prototype-level Brainworks hardware node.
