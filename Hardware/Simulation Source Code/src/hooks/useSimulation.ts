@@ -246,8 +246,8 @@ export function useSimulation() {
          } else if (scenarioId === 'lora-failure') {
             newSystemStatus.lora = false;
             newVehicles = [
-              { id: 'TRUCK-01', position: { x: 200, y: 150 }, speed: 35, heading: 0, targetPosition: null, path: [{x: 400, y: 150}, {x: 400, y: 450}, {x: 700, y: 450}, {x: 400, y: 450}, {x: 400, y: 150}, {x: 200, y: 150}], risk: 'SAFE', movementState: 'MOVING', stopReason: null, statuses: { gps: true, lora: false, radar: true, edge: true }, nearestHazard: { distance: null, type: null } },
-              { id: 'TRUCK-02', position: { x: 400, y: 450 }, speed: 30, heading: -90, targetPosition: null, path: [{x: 400, y: 150}, {x: 200, y: 150}, {x: 400, y: 150}, {x: 400, y: 450}], risk: 'SAFE', movementState: 'MOVING', stopReason: null, statuses: { gps: true, lora: false, radar: true, edge: true }, nearestHazard: { distance: null, type: null } }
+              { id: 'TRUCK-01', position: { x: 150, y: 300 }, speed: 35, heading: 0, targetPosition: null, path: [{x: 800, y: 300}, {x: 50, y: 300}], risk: 'SAFE', movementState: 'MOVING', stopReason: null, statuses: { gps: true, lora: false, radar: true, edge: true }, nearestHazard: { distance: null, type: null } },
+              { id: 'TRUCK-02', position: { x: 650, y: 300 }, speed: 30, heading: 180, targetPosition: null, path: [{x: 50, y: 300}, {x: 800, y: 300}], risk: 'SAFE', movementState: 'MOVING', stopReason: null, statuses: { gps: true, lora: false, radar: true, edge: true }, nearestHazard: { distance: null, type: null } }
             ];
          }
          
@@ -337,6 +337,56 @@ export function useSimulation() {
     });
   }, [addLog]);
 
+  const addObstacle = useCallback((type: 'ROCKFALL' | 'EQUIPMENT' = 'ROCKFALL') => {
+    setState(s => {
+      const roads = [
+        { y: 300, minX: 100, maxX: 700 },
+        { x: 400, minY: 100, maxY: 500 },
+        { y: 150, minX: 200, maxX: 600 },
+        { y: 450, minX: 400, maxX: 700 },
+      ];
+      
+      let newPos = null;
+      for (let attempts = 0; attempts < 20; attempts++) {
+        const road = roads[Math.floor(Math.random() * roads.length)];
+        const x = road.x !== undefined ? road.x : Math.floor(Math.random() * (road.maxX! - road.minX!) + road.minX!);
+        const y = road.y !== undefined ? road.y : Math.floor(Math.random() * (road.maxY! - road.minY!) + road.minY!);
+        
+        let isSafe = true;
+        for (const v of s.vehicles) {
+          const dist = Math.sqrt((v.position.x - x)**2 + (v.position.y - y)**2);
+          if (dist < 120) {
+             isSafe = false;
+             break;
+          }
+        }
+        
+        if (isSafe) {
+           newPos = { x, y };
+           break;
+        }
+      }
+      
+      if (!newPos) {
+        addLog('Cannot safely place obstacle (too crowded).', 'WARNING');
+        return s;
+      }
+      
+      const newObs = {
+        id: `OBS-${s.obstacles.length + 1}-${Math.floor(Math.random()*1000)}`,
+        position: newPos,
+        type: type
+      };
+      
+      addLog(`${type} hazard spawned at [${newPos.x}, ${newPos.y}]`, 'CRITICAL');
+      
+      return {
+        ...s,
+        obstacles: [...s.obstacles, newObs]
+      };
+    });
+  }, [addLog]);
+
   return {
     state,
     setState,
@@ -346,6 +396,7 @@ export function useSimulation() {
     loadScenario,
     addVehicle,
     removeVehicle,
+    addObstacle,
     addLog
   };
 }

@@ -1,41 +1,89 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Play, Pause, RotateCcw, AlertTriangle, Activity, MonitorSmartphone } from 'lucide-react';
 import { useSimulation } from './hooks/useSimulation';
 import MineMap from './components/MineMap';
 
 function App() {
   const sim = useSimulation();
-  const { state, setState, togglePlay, reset, setSpeed, loadScenario, addVehicle, removeVehicle } = sim;
+  const { state, setState, togglePlay, reset, setSpeed, loadScenario, addVehicle, removeVehicle, addObstacle } = sim;
   
+  const [alertsEnabled, setAlertsEnabled] = useState(true);
+
   // Audio for buzzer
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const audioIntervalRef = useRef<number | null>(null);
+  const beepTimeoutsRef = useRef<number[]>([]);
 
   useEffect(() => {
-    // Check if any vehicle is in CRITICAL risk and sound the alarm
-    const hasCritical = state.vehicles.some(v => v.risk === 'CRITICAL');
+    // Play beep when ANY hazard condition occurs
+    const hasHazard = state.vehicles.some(v => 
+      v.risk === 'WARNING' || 
+      v.risk === 'CRITICAL' || 
+      v.movementState === 'STOPPED'
+    );
     
-    if (hasCritical && state.isPlaying) {
+    if (hasHazard && state.isPlaying && alertsEnabled) {
       if (!audioCtxRef.current) {
         audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       }
       const ctx = audioCtxRef.current;
       if (ctx.state === 'suspended') ctx.resume();
-      
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'square';
-      osc.frequency.setValueAtTime(800, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.5);
-      
-      gain.gain.setValueAtTime(0.1, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
-      
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.5);
+
+      if (!audioIntervalRef.current) {
+        const playBeep = (freq: number, duration: number, type: OscillatorType = 'sine', vol = 0.08) => {
+            if (!alertsEnabled || !audioCtxRef.current) return;
+            try {
+                let osc = ctx.createOscillator();
+                let gain = ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                gain.gain.setValueAtTime(vol, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch(e){}
+        };
+
+        const playSequence = () => {
+          beepTimeoutsRef.current.forEach(clearTimeout);
+          beepTimeoutsRef.current = [];
+
+          // Beep 1
+          playBeep(900, 0.15, 'square', 0.1);
+          
+          // Beep 2 (150ms beep + 150ms gap = 300ms)
+          const t1 = window.setTimeout(() => playBeep(900, 0.15, 'square', 0.1), 300);
+          
+          // Beep 3 (300ms + 150ms beep + 150ms gap = 600ms)
+          const t2 = window.setTimeout(() => playBeep(900, 0.15, 'square', 0.1), 600);
+          
+          beepTimeoutsRef.current.push(t1, t2);
+        };
+
+        playSequence(); 
+        // 600ms + 150ms (last beep) + 1000ms pause = 1750ms
+        audioIntervalRef.current = window.setInterval(playSequence, 1750);
+      }
+    } else {
+      if (audioIntervalRef.current) {
+        window.clearInterval(audioIntervalRef.current);
+        audioIntervalRef.current = null;
+      }
+      beepTimeoutsRef.current.forEach(clearTimeout);
+      beepTimeoutsRef.current = [];
     }
-  }, [state.vehicles, state.isPlaying]);
+    
+    return () => {
+      if (audioIntervalRef.current) {
+        window.clearInterval(audioIntervalRef.current);
+        audioIntervalRef.current = null;
+      }
+      beepTimeoutsRef.current.forEach(clearTimeout);
+      beepTimeoutsRef.current = [];
+    };
+  }, [state.vehicles, state.isPlaying, alertsEnabled]);
 
   const selectedVehicle = state.vehicles.find(v => v.id === state.selectedVehicleId);
 
@@ -46,7 +94,7 @@ function App() {
         <div className="flex items-center gap-4">
           <Activity className="text-primary w-6 h-6" />
           <div>
-            <h1 className="text-xl font-bold tracking-wider text-white">MINESIGHT</h1>
+            <h1 className="text-xl font-bold tracking-wider text-white">BRAINWORKS</h1>
             <p className="text-xs text-gray-500 uppercase tracking-widest">Mine Vehicle Safety Simulation</p>
           </div>
         </div>
@@ -74,6 +122,21 @@ function App() {
               </button>
             </div>
             
+            <div className="flex gap-2">
+              <button 
+                onClick={() => addObstacle('ROCKFALL')}
+                className="flex-1 bg-critical/20 hover:bg-critical/30 text-critical border border-critical/50 text-xs font-bold py-1.5 rounded transition-colors"
+              >
+                + ADD ROCKFALL
+              </button>
+              <button 
+                onClick={() => addObstacle('EQUIPMENT')}
+                className="flex-1 bg-caution/20 hover:bg-caution/30 text-caution border border-caution/50 text-xs font-bold py-1.5 rounded transition-colors"
+              >
+                + ADD OBSTACLE
+              </button>
+            </div>
+            
             <div className="flex justify-between items-center bg-[#1a1a1a] p-2 rounded border border-[#333]">
               <div className="flex flex-col">
                  <span className="text-xs font-bold text-gray-500 uppercase">Vehicles</span>
@@ -86,6 +149,14 @@ function App() {
                 + ADD VEHICLE
               </button>
             </div>
+
+            <button 
+              onClick={() => setAlertsEnabled(!alertsEnabled)}
+              className="flex justify-between items-center bg-[#1a1a1a] p-2 rounded border border-[#333] hover:bg-[#222] transition-colors w-full text-left"
+            >
+              <span className="text-xs font-bold text-gray-500 uppercase">Alerts</span>
+              <span className="text-sm">{alertsEnabled ? '🔊 ON' : '🔇 OFF'}</span>
+            </button>
             
             <div className="flex gap-1 text-sm bg-[#1a1a1a] p-1 rounded">
               {[0.5, 1, 2, 4].map(s => (
