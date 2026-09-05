@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { SimulationState, RiskLevel } from '../types';
+import type { SimulationState, RiskLevel, Vehicle } from '../types';
 
 const INITIAL_STATE: SimulationState = {
   isPlaying: false,
@@ -103,6 +103,7 @@ export function useSimulation() {
         let hazardType: 'VEHICLE' | 'OBSTACLE' | null = null;
 
         const checkPos = isStopped ? vehicle.position : proposedPos;
+        let hazardTargetPos = null;
         
         prev.obstacles.forEach(obs => {
           const ox = obs.position.x - checkPos.x;
@@ -116,6 +117,7 @@ export function useSimulation() {
                 if (dist < minHazardDist) {
                   minHazardDist = dist;
                   hazardType = 'OBSTACLE';
+                  hazardTargetPos = obs.position;
                 }
              }
           }
@@ -142,6 +144,7 @@ export function useSimulation() {
           if (detected && dist < minHazardDist) {
              minHazardDist = dist;
              hazardType = 'VEHICLE';
+             hazardTargetPos = other.position;
           }
         });
 
@@ -178,7 +181,8 @@ export function useSimulation() {
           risk: prev.systemStatus.edge && vehicle.statuses.edge ? newRisk : 'SAFE',
           nearestHazard: {
             distance: minHazardDist === Infinity ? null : parseFloat((minHazardDist/10).toFixed(1)),
-            type: hazardType
+            type: hazardType,
+            position: hazardTargetPos
           }
         };
       });
@@ -262,6 +266,77 @@ export function useSimulation() {
      }, 1000);
   };
 
+  const addVehicle = useCallback(() => {
+    setState(s => {
+      let idNum = 1;
+      while (s.vehicles.find(v => v.id === `TRUCK-${idNum.toString().padStart(2, '0')}`)) {
+        idNum++;
+      }
+      const newId = `TRUCK-${idNum.toString().padStart(2, '0')}`;
+
+      const spawnPoints = [
+        { position: { x: 50, y: 300 }, heading: 0, path: [{x: 800, y: 300}, {x: 50, y: 300}] },
+        { position: { x: 400, y: 50 }, heading: 90, path: [{x: 400, y: 600}, {x: 400, y: 50}] },
+        { position: { x: 600, y: 150 }, heading: 180, path: [{x: 200, y: 150}, {x: 600, y: 150}] },
+        { position: { x: 400, y: 450 }, heading: 0, path: [{x: 700, y: 450}, {x: 400, y: 450}] },
+      ];
+
+      let selectedSpawn = null;
+      for (const sp of spawnPoints) {
+        let isSafe = true;
+        for (const v of s.vehicles) {
+          const dx = v.position.x - sp.position.x;
+          const dy = v.position.y - sp.position.y;
+          if (Math.sqrt(dx*dx + dy*dy) < 60) {
+            isSafe = false;
+            break;
+          }
+        }
+        if (isSafe) {
+          selectedSpawn = sp;
+          break;
+        }
+      }
+
+      if (!selectedSpawn) {
+        addLog('Cannot add vehicle: all spawn points blocked', 'WARNING');
+        return s;
+      }
+
+      const newVehicle: Vehicle = {
+        id: newId,
+        position: selectedSpawn.position,
+        heading: selectedSpawn.heading,
+        speed: 35,
+        targetPosition: null,
+        path: selectedSpawn.path,
+        risk: 'SAFE',
+        movementState: 'MOVING',
+        stopReason: null,
+        statuses: { gps: true, lora: true, radar: true, edge: true },
+        nearestHazard: { distance: null, type: null }
+      };
+      
+      addLog(`${newId} added to simulation`, 'INFO');
+      
+      return {
+        ...s,
+        vehicles: [...s.vehicles, newVehicle]
+      };
+    });
+  }, [addLog]);
+
+  const removeVehicle = useCallback((id: string) => {
+    setState(s => {
+      addLog(`${id} removed from simulation`, 'INFO');
+      return {
+        ...s,
+        vehicles: s.vehicles.filter(v => v.id !== id),
+        selectedVehicleId: s.selectedVehicleId === id ? null : s.selectedVehicleId
+      };
+    });
+  }, [addLog]);
+
   return {
     state,
     setState,
@@ -269,6 +344,8 @@ export function useSimulation() {
     reset,
     setSpeed,
     loadScenario,
+    addVehicle,
+    removeVehicle,
     addLog
   };
 }

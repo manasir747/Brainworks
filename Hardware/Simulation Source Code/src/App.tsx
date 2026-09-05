@@ -5,7 +5,7 @@ import MineMap from './components/MineMap';
 
 function App() {
   const sim = useSimulation();
-  const { state, setState, togglePlay, reset, setSpeed, loadScenario } = sim;
+  const { state, setState, togglePlay, reset, setSpeed, loadScenario, addVehicle, removeVehicle } = sim;
   
   // Audio for buzzer
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -71,6 +71,19 @@ function App() {
               </button>
               <button onClick={reset} className="flex-1 bg-[#222] hover:bg-[#333] p-2 rounded flex justify-center items-center">
                 <RotateCcw className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="flex justify-between items-center bg-[#1a1a1a] p-2 rounded border border-[#333]">
+              <div className="flex flex-col">
+                 <span className="text-xs font-bold text-gray-500 uppercase">Vehicles</span>
+                 <span className="text-sm font-bold text-white">{state.vehicles.length} ACTIVE</span>
+              </div>
+              <button 
+                onClick={addVehicle}
+                className="bg-primary/20 hover:bg-primary/30 text-primary border border-primary/50 text-xs font-bold px-3 py-1.5 rounded transition-colors"
+              >
+                + ADD VEHICLE
               </button>
             </div>
             
@@ -154,8 +167,17 @@ function App() {
         <aside className="w-80 bg-[#111] border-l border-[#222] p-4 flex flex-col gap-6 overflow-y-auto">
           {selectedVehicle ? (
             <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-right-4 duration-300">
-               <div className="flex justify-between items-center border-b border-[#333] pb-3">
-                 <h2 className="text-lg font-bold text-white">{selectedVehicle.id}</h2>
+                <div className="flex justify-between items-center border-b border-[#333] pb-3">
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-lg font-bold text-white">{selectedVehicle.id}</h2>
+                    <button 
+                      onClick={() => removeVehicle(selectedVehicle.id)}
+                      className="text-gray-500 hover:text-critical p-1 rounded hover:bg-critical/10 transition-colors"
+                      title="Remove Vehicle"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    </button>
+                  </div>
                  <div className={`px-2 py-0.5 rounded text-xs font-bold ${
                    selectedVehicle.risk === 'SAFE' ? 'bg-success/20 text-success' :
                    selectedVehicle.risk === 'CAUTION' ? 'bg-caution/20 text-caution' :

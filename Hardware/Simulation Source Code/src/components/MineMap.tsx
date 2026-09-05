@@ -105,6 +105,39 @@ const MineMap: React.FC<MineMapProps> = ({ vehicles, obstacles, onSelectVehicle,
             {v.risk === 'CRITICAL' && (
               <circle r="20" className="radar-pulse" fill={getRiskColor(v.risk)} />
             )}
+            
+            {/* Radar Target Line */}
+            {systemStatus.radar && v.statuses.radar && v.nearestHazard?.position && (
+               <g>
+                 <line 
+                   x1="0" 
+                   y1="0" 
+                   x2={v.nearestHazard.position.x - v.position.x} 
+                   y2={v.nearestHazard.position.y - v.position.y} 
+                   stroke="#f87171" 
+                   strokeWidth="1.5" 
+                   strokeDasharray="4,4" 
+                   className="opacity-70 animate-pulse"
+                 />
+                 <circle 
+                   cx={v.nearestHazard.position.x - v.position.x} 
+                   cy={v.nearestHazard.position.y - v.position.y} 
+                   r="4" 
+                   fill="none" 
+                   stroke="#f87171" 
+                   strokeWidth="1.5" 
+                 />
+                 <text
+                   x={v.nearestHazard.position.x - v.position.x + 8}
+                   y={v.nearestHazard.position.y - v.position.y + 4}
+                   fill="#f87171"
+                   fontSize="8"
+                   fontWeight="bold"
+                 >
+                   TARGET
+                 </text>
+               </g>
+            )}
 
             <g transform={`rotate(${v.heading})`}>
               <rect x="-15" y="-10" width="30" height="20" rx="3" fill="#333" stroke={getRiskColor(v.risk)} strokeWidth="2" />

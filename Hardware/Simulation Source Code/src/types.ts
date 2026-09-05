@@ -24,6 +24,7 @@ export interface Vehicle {
   nearestHazard: {
     distance: number | null;
     type: 'VEHICLE' | 'OBSTACLE' | null;
+    position?: Position | null;
   };
 }
 
