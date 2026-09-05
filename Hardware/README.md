@@ -325,6 +325,86 @@ flowchart TD
 
 ## Collision Detection Logic
 
+Brainworks continuously evaluates available cooperative awareness information and local obstacle sensing data to determine whether a configured risk condition requires a local warning activation.
+
+### 1. Input Acquisition
+
+The ESP32 microcontroller receives and processes available data streams across three primary channels:
+
+- **Local GPS Position Data**: Provides geographic coordinates and movement vectors of the host vehicle.
+- **Received LoRa Awareness Messages**: Contains position telemetry broadcasted by nearby participating Brainworks nodes.
+- **Local 24 GHz mmWave Radar Sensing**: Detects physical obstacles or unequipped hazards in proximity to the vehicle.
+
+> [!NOTE]
+> In real-world operational environments, data inputs may experience intermittent availability or loss. The prototype does not assume guaranteed communication or uninterrupted sensor availability.
+
+### 2. Local Risk Evaluation
+
+The ESP32 acts as the autonomous local decision point for the vehicle node. Based on the available data streams, the system evaluates configured risk conditions. Risk evaluation thresholds are designed as configurable prototype parameters rather than fixed, certified universal safety values.
+
+| Input | Evaluation Purpose |
+|---|---|
+| GPS Position | Provides local position awareness |
+| Received LoRa Data | Supports awareness of participating nodes |
+| mmWave Radar Data | Supports local obstacle awareness |
+| Combined Information | Supports configured collision-risk evaluation |
+
+### 3. Warning Decision Flow
+
+```mermaid
+flowchart TD
+    START["Start Monitoring"] --> GPS["Acquire GPS Data"]
+    GPS --> LORA["Receive Available LoRa Awareness Data"]
+    LORA --> RADAR["Read mmWave Radar Data"]
+    RADAR --> ESP32["ESP32 Local Processing"]
+    ESP32 --> FUSION["Sensor / Data Fusion"]
+    FUSION --> RISK["Evaluate Configured Risk Condition"]
+
+    RISK -->|No Significant Risk| SAFE["Continue Monitoring"]
+    SAFE --> START
+
+    RISK -->|Risk Condition Detected| ALERT["Activate Active Buzzer"]
+    ALERT --> DRIVER["Generate Local Driver / Operator Warning"]
+    DRIVER --> START
+```
+
+### 4. High-Level Decision Logic
+
+```
+LOOP:
+
+    Acquire available GPS information
+
+    Receive available LoRa awareness messages
+
+    Read local mmWave radar information
+
+    Process available inputs
+
+    Combine relevant awareness information
+
+    Evaluate configured risk conditions
+
+    IF risk condition is detected:
+        Activate local warning
+
+    ELSE:
+        Continue monitoring
+
+    Repeat
+```
+
+> [!IMPORTANT]
+> The logic above describes high-level prototype operational flow for demonstration and research purposes. It is not a certified industrial safety algorithm.
+
+### 5. Fail-Safe Design Considerations
+
+- **Local Processing**: Immediate warning decisions are intended to be processed locally on the ESP32 to eliminate latency.
+- **Zero Cloud Dependency**: The immediate hazard warning path does not depend on cloud processing or internet infrastructure.
+- **Non-Binary Risk Assumption**: Loss or absence of a single information source (e.g., GPS or LoRa) is not automatically interpreted as confirmation that the operating environment is safe.
+- **Validation Requirement**: Final field deployment would require extensive physical validation, environmental testing, and safety verification.
+- **Prototype Scope**: Brainworks is a proof-of-concept prototype and does not replace certified industrial collision-avoidance systems or mandatory mine safety regulations.
+
 ## Hardware Prototype
 
 ## Bill of Materials
