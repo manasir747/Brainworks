@@ -88,6 +88,59 @@ flowchart TD
 
 ## Communication Flow
 
+Brainworks utilizes direct LoRa-based communication between participating nodes so that nearby vehicles can exchange essential awareness information without depending on cloud services or continuous internet connectivity.
+
+### Information Flow
+
+1. The NEO-6M GPS obtains the current geographic position of the vehicle.
+2. The ESP32 reads and processes the available position information.
+3. The ESP32 prepares a structured awareness message.
+4. The message is transmitted through the LoRa SX1278 / Ra-02 module.
+5. Nearby Brainworks nodes receive the transmitted information.
+6. The receiving ESP32 processes the received data.
+7. The received information is used together with local sensing data for further risk evaluation.
+
+### Awareness Message Structure
+
+| Field | Purpose |
+|---|---|
+| Vehicle / Node ID | Identifies the transmitting Brainworks node |
+| Latitude | Geographic position information |
+| Longitude | Geographic position information |
+| Timestamp | Indicates when the information was generated |
+
+> [!NOTE]
+> This structure represents the baseline prototype-level awareness message format and can be extended with additional parameters as the system evolves.
+
+### Vehicle-to-Vehicle Communication Diagram
+
+```mermaid
+flowchart TD
+    subgraph NODE_A["Brainworks Node A"]
+        GPS_A["GPS"] --> ESP_A["ESP32"] --> LORA_A["LoRa"]
+    end
+
+    subgraph NODE_B["Brainworks Node B"]
+        GPS_B["GPS"] --> ESP_B["ESP32"] --> LORA_B["LoRa"]
+    end
+
+    subgraph NODE_C["Brainworks Node C"]
+        GPS_C["GPS"] --> ESP_C["ESP32"] --> LORA_C["LoRa"]
+    end
+
+    LORA_A <-->|LoRa V2V Link| LORA_B
+    LORA_B <-->|LoRa V2V Link| LORA_C
+    LORA_A <-->|LoRa V2V Link| LORA_C
+```
+
+### Communication Design Principles
+
+- **Direct Node-to-Node Exchange**: Vehicles exchange awareness information directly with nearby peer nodes using wireless LoRa communication.
+- **Local Processing**: Each node independently processes both locally generated sensor data and received V2V telemetry messages.
+- **Infrastructure-Independent**: No reliance on cellular networks, cloud services, or external central servers for the immediate warning path.
+- **Distributed Architecture**: Supports decentralized operation across arbitrary clusters of equipped vehicles.
+- **Extensible Payload**: Modular awareness message structure designed for easy expansion with future telemetry parameters.
+
 ## Sensor Fusion Strategy
 
 ## Pin Connections
